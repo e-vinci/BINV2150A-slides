@@ -288,6 +288,8 @@ const ingredient: Ingredient = { name: "farine", quantity: 200, unit: "g" };
 // Destructuring simple
 const { name, quantity } = ingredient;
 
+console.log(`{quantity} x {name}`);
+
 // Renommage
 const { name: ingredientName, unit: mesure } = ingredient;
 
@@ -314,6 +316,9 @@ function printIngredient(ingredient: Ingredient) {
 function printIngredient({ name, quantity, unit }: Ingredient) {
   console.log(`${quantity}${unit} de ${name}`);
 }
+
+const ingredients: Ingredient = getIngredient();
+printIngredient(ingredient);
 ```
 
 ---
