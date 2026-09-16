@@ -398,8 +398,33 @@ components:
 
 ---
 
-# Exercice filé S02
+
+# Exercice filé S02 partie 1
 
 - Dans le backend du projet MiamMiam, créez un fichier `README.md` pour documenter l'API REST.
 - Documentez l'entièreté des routes existantes
 - **Optionnel** : Créez un fichier `openapi.yaml` pour documenter l'API REST avec OpenAPI (Swagger).
+
+---
+
+# Exercice filé S02 partie 2
+
+- Implémentez la route PATCH `/recipes/:id`.
+  - Cette route permet de mettre à jour partiellement une recette existante. 
+  - La spécification de la route doit être :
+
+```
+/**
+ * @route PATCH /recipes/:id
+ * @summary Met à jour partiellement une recette (auteur ou admin uniquement)
+ * @param {number} id.path - L'ID de la recette
+ * @param {UpdatedRecipeDTO} req.body - Les données de la recette à mettre à jour
+ * @returns {RecipeDTO} 200 - La recette mise à jour
+ * @returns {400} - ID invalide ou données invalides
+ * @returns {401} - Non autorisé
+ * @returns {403} - Accès refusé
+ * @returns {404} - Recette non trouvée
+ */
+```
+
+N'oubliez pas de mettre à jour la documentation et de tester vos routes.
