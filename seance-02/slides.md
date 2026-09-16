@@ -409,23 +409,9 @@ components:
 
 # Exercice filé S02 partie 2
 
-Revoir la route `PUT /recipes/:id`. Cette route doit permettre de complètement mettre à jour une recette existante. Attention, cette route n'accepte que les données qui ne sont pas gérées par le backend (pas d'auteur, pas d'id, pas de date de création, pas de date de modification). La spécification de la route doit être
-
-```
-/**
- * @route PUT /recipes/:id
- * @summary Remplace une recette (auteur ou admin uniquement)
- * @param {number} id.path - L'ID de la recette
- * @param {NewRecipeDTO} req.body - Les données de la recette à mettre à jour
- * @returns {RecipeDTO} 200 - La recette mise à jour
- * @returns {400} - ID invalide ou données invalides
- * @returns {401} - Non autorisé
- * @returns {403} - Accès refusé
- * @returns {404} - Recette non trouvée
- */
-```
-
-Implémentez la route PATCH `/recipes/:id` qui a pour but de mettre à jour partiellement une recette existante. Cette route doit avoir la spécification suivante :
+- Implémentez la route PATCH `/recipes/:id`.
+  - Cette route permet de mettre à jour partiellement une recette existante. 
+  - La spécification de la route doit être :
 
 ```
 /**
@@ -441,4 +427,4 @@ Implémentez la route PATCH `/recipes/:id` qui a pour but de mettre à jour part
  */
 ```
 
-Vérifiez que les routes fonctionnent correctement à l'aide des fichiers http.
+N'oubliez pas de mettre à jour la documentation et de tester vos routes.
