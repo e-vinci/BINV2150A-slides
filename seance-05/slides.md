@@ -330,7 +330,7 @@ Utilisez `innerHTML` pour le HTML structuré, `textContent` pour les données po
 
 ---
 
-# Exercice complémentaire 01
+# Exercice complémentaire SC01
 
 1. Téléchargez la page HTML de la séance 05 sur moodle et placez-la dans votre dossier de cours
 2. Créez un fichier `script.js` et liez-le à la page HTML

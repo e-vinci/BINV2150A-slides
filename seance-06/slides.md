@@ -277,7 +277,7 @@ searchInput.addEventListener('input', (event) => renderRecipes(event.target.valu
 
 ---
 
-# Exercice complémentaire 02
+# Exercice complémentaire SC02
 
 1. Téléchargez la page HTML de la séance 06 sur moodle et placez-la dans votre dossier de cours
 2. Créez un fichier `script.js` et liez-le à la page HTML
