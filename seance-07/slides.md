@@ -10,12 +10,12 @@ title: Web 2 - Séance 07 - Projet Vite et composant React
 
 # React
 
-- Librairie JavaScript pour construire des interfaces utilisateur
+- Bibliothèque JavaScript pour construire des interfaces utilisateur
 - **Déclaratif**
   - Le développeur décrit l'UI
   - React gère les mises à jour du DOM
 - Basé sur les **composants**
-  - Pièces réutilisables d'interfaces
+  - Pièces réutilisables d'interface
   - Unités autonomes
 
 ---
@@ -24,8 +24,7 @@ title: Web 2 - Séance 07 - Projet Vite et composant React
 
 - Outil de build pour les applications web modernes
 - Permet de créer un projet React + TypeScript en quelques commandes
-- Compile le code TypeScript/JSX en JavaScript compatible navigateur
-- Gère les dépendances du projet (npm packages)
+- Transpile le code TypeScript/JSX en JavaScript compatible navigateur
 - Propose un serveur de développement avec hot reload
 - Rassemble l'entièreté du code source en un bundle optimisé pour la production
   - Un seul fichier HTML
@@ -47,9 +46,8 @@ npm run dev
 - Crée un projet préconfiguré avec Vite
 - `frontend` &rarr; nom du projet et du dossier créé
 - Vite demande quel template utiliser
-  - Sélectionner `React` puis `TypeScript`
-  - Passer l'option `--template react-ts` pour automatiser la sélection
-
+  - Sélectionner `React` puis `TypeScript` (répondre non aux options expérimentales)
+  - Ou tout en une commande : `npm create vite@latest frontend -- --template react-ts`
 ---
 
 # Structure du projet
@@ -69,7 +67,7 @@ frontend/
 ```
 
 - **vite.config.ts**: Configure le bundler et le dev server, rien à modifier pour l'instant
-- **index.html**: Contient `<div id="root"></div>` pour React, à ne pas modifier
+- **index.html**: Contient `<div id="root"></div>` pour React, ne modifier que le `<title>` et `lang`
 - **main.tsx**: Lance l'application en montant le composant `App` dans le DOM à l'élément `#root`
 - **App.tsx**: Composant racine, où commence votre logique
 
@@ -86,37 +84,33 @@ const element = <h1>Bienvenue!</h1>
 const title = "Recettes"
 const greeting = <h2>{title}</h2>
 
-// Avec des attributs
-const card = <div className="recipe-card" id="card-1"></div>
-```
+// Avec des fonctions
+function formatDuration(minutes: number): string {
+  return `${minutes} minutes`;
+}
+const duration = 1; // en heures
+const info = <p>Durée: {formatDuration(duration * 60)}</p>
 
-**Differences clés avec HTML**
-- `className` au lieu de `class` (mot-clé réservé JS)
-- `htmlFor` au lieu de `for` (mot-clé réservé JS)
-- Expressions JavaScript entre `{}`
-- Tags auto-fermants: `<img />`
+// Avec des conditions (ternaires)
+const difficulty = "facile";
+const badge = (
+  <span>
+    {difficulty === "facile" ? "✅" : "⚠️"}
+  </span>
+);
+```
 
 ---
 
-# JSX: Expressions et conditions
+# JSX: Différences avec HTML
 
-```tsx
-// Variables
-const duration = 30;
-const time = <p>Durée: {duration} minutes</p>;
-
-// Ternaire
-const difficulty = "facile";
-const badge = <span>{difficulty === "facile" ? "✅" : "⚠️"}</span>;
-
-// Map pour listes
-const ingredients = ["oeuf", "farine", "sucre"];
-const list = (
-  <ul>
-    {ingredients.map((ing) => <li>{ing}</li>)}
-  </ul>
-);
-```
+- `className` au lieu de `class` (mot-clé réservé JS)
+- `htmlFor` au lieu de `for` (mot-clé réservé JS)
+- Expressions JavaScript entre `{}`
+- `style` reçoit un objet, pas une chaîne : `style={{ width: "200px" }}`
+- Tags auto-fermants obligatoires : `<img />`, `<input />`, `<br />`
+- Une expression JSX a **un seul élément racine** : envelopper dans un `<div>` ou un fragment `<>...</>`
+- Commentaires : `{/* ... */}`
 
 ---
 
@@ -201,19 +195,24 @@ export default App;
 
 # Utiliser un composant (suite)
 
+Fichier généré par Vite, à ne pas modifier pour l'instant :
+
 ```tsx
 // main.tsx
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import "./index.css";
+import App from "./App.tsx";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>,
 );
 ```
+
+- `document.getElementById("root")!` : le `!` de la séance 01, `#root` existe forcément dans `index.html`
+- `StrictMode` : mode de développement qui signale les erreurs courantes
 
 ---
 
@@ -250,18 +249,18 @@ src/
 │   └── Footer.tsx
 ```
 
-- Composants réutilisables
-- Code complexe
-- Meilleure organisation du code
+- Un fichier par composant dès qu'il est réutilisé ailleurs ou qu'il devient long
+- Dossier `components/` pour tout ce qui n'est pas `App`
+- Nom du fichier = nom du composant
 
 ---
 
 # Récapitulatif
 
-- React = bibliothèque pour construire des interfaces utilisateur
-- Vite = bundler moderne pour compiler et servir le code React
-- JSX = syntaxe HTML-like dans le code TypeScript
-- Composants = fonctions TypeScript qui retournent du JSX, organisés en fichiers
+- **React** - bibliothèque pour construire des interfaces utilisateur
+- **Vite** - bundler moderne pour compiler et servir le code React
+- **JSX** - syntaxe HTML-like dans le code TypeScript
+- **Composants** - fonctions TypeScript qui retournent du JSX, organisés en fichiers
 
 **Prochaine séance** : Séance 08 — Props et children
 
@@ -271,30 +270,27 @@ src/
 
 1. Créez l'application frontend dans votre dossier d'exercices MiamMiam, avec Vite + React + TypeScript
 2. Créez un fichier `RecipeCard.tsx` dans le dossier `src/components`
-3. Dans ce fichier, créez un l'objet `recipe` suivant :
+3. Dans ce fichier, créez l'objet `recipe` suivant :
 ```tsx
 const recipe = {
   title: "Pâtes Carbonara",
-  image: "https://img.taste.com.au/86bOXAkG/taste/2016/11/carbonara-sauce-28894-1.jpeg",
+  image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800",
   duration: 20,
   difficulty: "Facile",
-  ingredients: ["Pâtes", "œufs", "lard", "fromage"],
-  steps: ["Cuire les pâtes", "Mélanger les œufs et le fromage", "Faire revenir le lard", "Mélanger le tout"]
 };
 ```
 
-4. Créez un composant `RecipeCard` qui affiche cet objet avec la structure suivante :
-    - Titre (h2)
-    - Image (img)
-    - Durée et difficulté (p)
-    - Liste des ingrédients (ul > li)
-    - Liste des étapes (ol > li)
+4. Créez un composant `RecipeCard` qui affiche cette recette avec la structure suivante :
+    - Titre (h2) et image (img), depuis l'objet `recipe`
+    - Durée et difficulté (p), depuis l'objet `recipe`
+    - Liste des ingrédients (ul > li), écrite en dur : pâtes, œufs, lard, fromage
+    - Liste des étapes (ol > li), écrite en dur : cuire les pâtes, mélanger les œufs et le fromage, faire revenir le lard, mélanger le tout
 
 ---
 
 # Exercice filé S07 (suite)
 
-3. Enlevez le contenu de `App.tsx` et le remplacer par le code suivant :
+5. Enlevez le contenu de `App.tsx` et remplacez-le par le code suivant :
 
 ```tsx
 const App = () => {
@@ -308,14 +304,16 @@ const App = () => {
 export default App;
 ```
 
-4. Intégrez le composant `RecipeCard` dans `App.tsx` pour qu'il s'affiche sous le titre
+6. Intégrez le composant `RecipeCard` dans `App.tsx` pour qu'il s'affiche sous le titre
 
 ---
 
-# Exercice complémentaire SC03
+# Exercice complémentaire EC03
 
-1. Téléchargez la page HTML de la séance 07 sur moodle
-2. Créez un projet SC03 dans votre dossier d'exercices complémentaires, avec Vite + React + TypeScript
-3. Identifiez les composants nécessaires pour reproduire la page HTML
-4. Créez les composants et intégrez-les dans `App.tsx`
-5. Assurez-vous d'organiser correctement et lisiblement vos composants
+1. Téléchargez la page HTML de la séance 07 sur moodle et ouvrez-la dans le navigateur
+2. Créez un projet `EC03` dans votre dossier d'exercices complémentaires, avec Vite + React + TypeScript
+3. Sur papier, découpez la page en composants : regroupez les parties qui vont ensemble et qui peuvent être réutilisées
+4. Créez les composants et assemblez-les dane le projet pour reproduire la page à l'identique
+5. Copiez le CSS de la page dans `src/index.css` (le contenu généré par Vite peut être supprimé)
+6. Vérifiez que la page s'affiche comme l'originale et que la console du navigateur n'affiche **aucun warning**
+7. Pièges à repérer en convertissant le HTML en JSX : `class`, `for`, `style="..."`, balises non fermées, …

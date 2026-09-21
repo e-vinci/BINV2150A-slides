@@ -290,7 +290,7 @@ Vérifie les identifiants et génère un JWT si correct.
 ```ts
 authController.post("/login", (req: Request, res: Response) => {
   const body: unknown = req.body;
-  if (!isCredentialsDTO(body)) return res.sendStatus(400); // type guard, cf. S01
+  if (!isCredentialsDTO(body)) return res.sendStatus(400);
 
   const { email, password } = body;
   const user = UsersService.getByEmail(email);
