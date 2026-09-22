@@ -45,10 +45,9 @@ export const validateFakeToken = (token: string) => Buffer.from(token, "base64")
 
 | | Fake token | JWT |
 |---|---|---|
-| Contenu | l'email encodé en Base64 | ce qu'on veut inclure |
-| Falsifiable | **oui** : `btoa("admin@miam.be")` suffit | **non** : signé avec une clé secrète connue du serveur seul |
+| Contenu | uniquement l'email | ce qu'on veut inclure |
+| Falsifiable | **oui** : il suffit d'encoder un email en Base64 | **non** : signé avec une clé secrète connue du serveur seul |
 | Expiration | jamais | `exp` intégré au token |
-| Vérification | recherche l'utilisateur en BDD à chaque requête | vérification de la signature, sans accès BDD |
 
 &rarr; Même principe (un texte envoyé à chaque requête), mais le JWT est **vérifiable** et **autoporteur**.
 
@@ -97,18 +96,27 @@ end
 
 ---
 
-# Générer un JWT
+# Librairie `jsonwebtoken`
 
-Librairie à utiliser : `jsonwebtoken`
+- Librairie à utiliser : `jsonwebtoken`
+- Installation :
+
+```bash
+npm install jsonwebtoken
+npm install --save-dev @types/jsonwebtoken
+```
+
+- Importation :
 
 ```ts
-// npm install jsonwebtoken
-// npm install --save-dev @types/jsonwebtoken
 import jwt from "jsonwebtoken";
+```
 
-// Clé secrète pour signer le token (à garder confidentielle, voir slide suivant)
-const SECRET_KEY = process.env.JWT_SECRET!;
+---
 
+# Configuration du JWT : Modèles nécessaires
+
+```ts
 // Informations identifiant l'utilisateur
 // Stockées dans le payload du token
 interface TokenPayload {
@@ -116,11 +124,16 @@ interface TokenPayload {
   email: string;
   role: "user" | "admin";
 }
+
+// Request étendue avec l'utilisateur authentifié (payload du token)
+export interface AuthRequest extends Request {
+  user?: TokenPayload;
+}
 ```
 
 ---
 
-# Clé secrète : variable d'environnement
+# Configuration du JWT : Clé secrète
 
 La clé secrète ne doit **jamais** être écrite dans le code (ni dans Git) <br> Quiconque la connaît peut fabriquer des tokens valides.
 
@@ -138,11 +151,11 @@ const SECRET_KEY = process.env.JWT_SECRET!;
 ```
 
 - Chaque environnement (dev, test, prod) a son propre fichier et sa propre clé
-- Le fichier `env/dev.env` du boilerplate est fourni ; en pratique, on l'ajoute au `.gitignore`
+- Les fichiers `.env` sont ajoutés au `.gitignore` pour ne pas être poussés sur GitHub
 
 ---
 
-# Générer un JWT (suite)
+# Générer un JWT
 
 ```ts
 function generateToken(user: TokenPayload): string {
@@ -155,39 +168,6 @@ function generateToken(user: TokenPayload): string {
     }
   );
 }
-
-// Exemple d'utilisation
-const token = generateToken({
-  id: 1,
-  email: "john@gmail.com",
-  role: "user",
-});
-
-console.log(token);
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOi...
-```
-
----
-
-# Décoder un JWT
-
-Que contient ce token une fois décodé ?
-
-```ts
-// Header:
-{
-  "alg": "HS256",
-  "typ": "JWT"
-}
-
-// Payload:
-{
-  "id": 1,
-  "email": "john@gmail.com",
-  "role": "user",
-  "iat": 1637512000, // iat = issued at (quand créé)
-  "exp": 1637598400  // exp = expiration time (quand expire, ici iat + 1 jour)
-}
 ```
 
 ---
@@ -195,26 +175,15 @@ Que contient ce token une fois décodé ?
 # Vérifier un JWT
 
 ```ts
-// Vérifier et décoder
-function verifyToken(token: string): TokenPayload | null {
+function verifyToken(token: string): TokenPayload | undefined {
   try {
     const decoded = jwt.verify(token, SECRET_KEY) as TokenPayload;
     return decoded;
   } catch (error) {
     // Token invalide, expiré, etc.
     console.error("Token invalide :", error);
-    return null;
+    return undefined;
   }
-}
-
-// Exemple d'utilisation
-const token = "eyJhbGc...";
-const payload = verifyToken(token);
-
-if (payload) {
-  console.log("Utilisateur :", payload.email);
-} else {
-  console.log("Token rejeté");
 }
 ```
 
@@ -225,13 +194,8 @@ if (payload) {
 Vérifier le token avant d'accéder à une route protégée.
 
 ```ts
-// Request étendue avec l'utilisateur authentifié (payload du token)
-export interface AuthenticatedRequest extends Request {
-  user?: TokenPayload;
-}
-
 export class AuthService {
-  static authorize(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  static authorize(req: AuthRequest, res: Response, next: NextFunction) {
     const token = req.get("Authorization");
     if (!token) return res.sendStatus(401);
 
@@ -242,7 +206,7 @@ export class AuthService {
     next();
   }
 
-  static isAdmin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  static isAdmin(req: AuthRequest, res: Response, next: NextFunction) {
     if (!req.user) return res.sendStatus(401);
     if (req.user.role !== "admin") return res.sendStatus(403);
     next();
@@ -257,7 +221,7 @@ export class AuthService {
 Utiliser le middleware pour protéger les routes.
 
 ```ts
-recipesController.put("/:id", AuthService.authorize, (req: AuthenticatedRequest, res: Response) => {
+recipesController.put("/:id", AuthService.authorize, (req: AuthRequest, res: Response) => {
   const recipeId = parseInt(req.params.id);
   const recipe = RecipesService.getRecipeById(recipeId);
   if (!recipe) return res.sendStatus(404);
@@ -293,10 +257,7 @@ authController.post("/login", (req: Request, res: Response) => {
   if (!isCredentialsDTO(body)) return res.sendStatus(400);
 
   const { email, password } = body;
-  const user = UsersService.getByEmail(email);
-  if (!user || user.password !== password) { // pas sécurisé, hachage à voir en séance 04
-    return res.sendStatus(401);
-  }
+  if (!AuthService.isValidCredentials(email, password)) return res.sendStatus(401);
 
   const token = generateToken({
     id: user.id,

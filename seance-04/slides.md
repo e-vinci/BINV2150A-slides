@@ -61,36 +61,39 @@ hash = H(entrée)
 
 # Hachage avec Salt
 
-- Sans Salt : deux utilisateurs avec le même mot de passe auront le même hash
-- Avec Salt : on ajoute une valeur aléatoire au mot de passe avant de le hacher
+- **Sans Salt** : Opération déterministe, même mot de passe → même hash
+  - Si deux utilisateurs ont le même mot de passe, ils auront le même hash
+  - Attaques par dictionnaire : tester tous les mots de passe courants et comparer si le hash correspond
+  - Rainbow tables : table pré-calculée de mots de passe et leurs hash, pour retrouver rapidement le mdp
+- **Avec Salt** : on ajoute une valeur aléatoire au mot de passe avant de le hacher
   - Stockée dans la BDD avec le hash, pour pouvoir vérifier le mot de passe plus tard
   - Modifie le hash même si deux utilisateurs ont le même mot de passe
-- Protège contre les attaques par dictionnaire et rainbow tables
-  - Attaque par dictionnaire : tester tous les mots de passe courants
-  - Rainbow table : table pré-calculée de mots de passe et leurs hash
+  - Protège contre les attaques par dictionnaire et rainbow tables
 
 ---
 
-# bcrypt : Qu'est-ce que c'est ?
+# Librairie `bcrypt`
 
-Library de hachage avec salt intégré.
+- Installation :
 
-```ts
-// Installation
+```bash
 npm install bcrypt
 npm install --save-dev @types/bcrypt
+````
 
-// Imports
+- Importation :
+
+```ts
 import bcrypt from "bcrypt";
 ```
 
 BCrypt fait tout automatiquement :
 - Génère un salt aléatoire
 - Ajoute le salt au mot de passe
-- Hache plusieurs fois (le "cost")
+- Hache plusieurs fois :
   - Coût = nombre de tours de hachage
   - Augmente le temps de calcul pour ralentir les attaques par force brute
-  - Chaque +1 double le temps : cost=10 &rightarrow; ~100ms, cost=12 &rightarrow; ~400ms
+  - Chaque +1 double le temps
 - Retourne salt + hash en un seul string
 
 ---
@@ -103,24 +106,37 @@ import bcrypt from "bcrypt";
 // Hacher un mot de passe
 const password = "MySecretPassword123!";
 const saltRounds = 10; // coût de hachage
-bcrypt.hash(password, saltRounds); // retourne une Promise<string> avec le hash
+bcrypt.hash(password, saltRounds); // retourne une Promise<string>
 
 // Vérifier un mot de passe
 const tentativePassword = "MySecretPassword123!";
 const storedHash = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeU6xBJxvxaXUtSQm1S";
-bcrypt.compare(tentativePassword, storedHash); // retourne une Promise<boolean> : true si correspond, false sinon
+bcrypt.compare(tentativePassword, storedHash); // retourne une Promise<boolean>
 ```
 
 ---
 
-# Fonction asynchrone
-##
+# Pourquoi bcrypt doit être asynchrone
 
-Les fonctions de bcrypt prennent du temps de calcul (100ms+). Si on les exécute de manière synchrone, elles bloquent l'exécution et ralentissent le serveur. À la place, on utilise des fonctions **asynchrones**.
+- Hacher un mot de passe est **volontairement lent** (~100 ms), pour freiner les attaques par force brute
+- JavaScript est **single-threaded** : un seul thread exécute notre code
+- Version **synchrone** : ce thread fait le calcul lui-même &rarr; le serveur ne peut rien faire d'autre en attendant
+- Version **asynchrone** : bcrypt confie le calcul à **un autre thread** (code C++) &rarr; le thread principal reste libre
+- `await` **met la fonction en pause** ; elle **reprend** automatiquement quand le hash est prêt
 
-JavaScript/TypeScript est **single-threaded** : une seule tâche peut s'exécuter à la fois. Si une fonction prend du temps, elle bloque tout le serveur.
+```js
+// ❌ Version synchrone, pendant 100 ms, plus personne ne peut se connecter
+const hash = bcrypt.hashSync(password, 10);
 
-Une fonction asynchrone permet de libérer le thread principal pendant le calcul. Le reste du code peut continuer à s'exécuter pendant que la fonction asynchrone s'exécute en arrière-plan.
+// ✅ Version asynchrone, le serveur continue de répondre pendant le calcul
+const hash = await bcrypt.hash(password, 10);
+```
+
+<br>
+
+> Les fonctions asynchrones sont également utilisées pour les opérations lentes qui nécessitent d'attendre une réponse d'un serveur ou d'une base de données.
+> Le serveur peut continuer à répondre à d'autres requêtes pendant ce temps, et la fonction reprend automatiquement quand la réponse est prête.
+
 
 ---
 
@@ -193,7 +209,7 @@ async function hashPassword(plainPassword: string): Promise<string> {
 
 ---
 
-# bcrypt : Hash et Salt
+# bcrypt : Hash et vérification
 
 ```ts
 import bcrypt from "bcrypt";
@@ -205,87 +221,67 @@ async function hashPassword(plainPassword: string): Promise<string> {
   return hash;
 }
 
-// Exemple (await doit être dans une fonction async)
-const password = "MySecretPassword123!";
-const hash = await hashPassword(password);
-console.log(hash);
-// $2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeU6xBJxvxaXUtSQm1S
-```
-
----
-
-# bcrypt : Comparaison
-
-```ts
-import bcrypt from "bcrypt";
-
 // Comparer le mot de passe saisi avec le hash stocké
 async function verifyPassword(plainPassword: string, storedHash: string): Promise<boolean> {
   const isMatch = await bcrypt.compare(plainPassword, storedHash);
   return isMatch;
 }
-
-// Exemple (await doit être dans une fonction async)
-const userPassword = "MySecretPassword123!";
-const storedHash = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeU6xBJxvxaXUtSQm1S";
-
-const isCorrect = await verifyPassword(userPassword, storedHash);
-console.log(isCorrect); // true
-
-const isWrong = await verifyPassword("WrongPassword", storedHash);
-console.log(isWrong); // false
 ```
 
 ---
 
-# Route d'Inscription avec bcrypt
+# Inscription avec bcrypt
 
 ```ts
-authController.post("/register", async (req: Request, res: Response) => {
-    const body: unknown = req.body;
-    if (!isCredentialsDTO(body)) return res.sendStatus(400); // Bad Request
+class UsersService {
+  static async create(newUser: NewUser): Promise<User | undefined> {
+    if (this.getByEmail(newUser.email)) return undefined;
 
-    const { email, password } = body;
+    // Hacher le mot de passe avant de le stocker
+    const passwordHash = await bcrypt.hash(newUser.password, 10);
+    const user: User = {
+      id: UsersService.getNextId(users),
+      email: newUser.email,
+      password: passwordHash, // Stocker le hash du mot de passe
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      role: ERole.USER,
+      favorites: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    // Vérifier email pas déjà utilisé
-    const existingUser = UsersService.getByEmail(email);
-    if (existingUser) return res.sendStatus(409); // Conflict
-
-    // Hacher le mot de passe
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Sauvegarder l'utilisateur
-    const user = UsersService.create({ email, passwordHash, role: "user" });
-
-    // Créer un token
-    const token = generateToken({ id: user.id, email: user.email, role: user.role });
-
-    res.status(201).json({ token });
-});
+    const users = this.readUsersDB();
+    users.push(user);
+    if (!this.writeUsersDB(users)) return undefined;
+    return user;
+  }
+}
 ```
 
 ---
 
-# Route de Connexion avec bcrypt
+# Connexion avec bcrypt
 
 ```ts
-authController.post("/login", async (req: Request, res: Response) => {
-    const body: unknown = req.body;
-    if (!isCredentialsDTO(body)) return res.sendStatus(400); // Bad Request
-
-    const { email, password } = body;
-
+class AuthService {
+  static async login(email: string, password: string): Promise<string | undefined> {
+    // Récupérer l'utilisateur par email
     const user = UsersService.getByEmail(email);
-    if (!user) return res.sendStatus(401); // Unauthorized
+    if (!user) return undefined; // Utilisateur non trouvé
 
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isPasswordValid) return res.sendStatus(401); // Unauthorized
+    // Vérifier le mot de passe avec le hash stocké
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) return undefined; // Mot de passe incorrect
 
-    // Créer un token
-    const token = generateToken({ id: user.id, email: user.email, role: user.role });
-
-    res.json({ token });
-});
+    // Générer un token JWT pour l'utilisateur
+    return generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+  }
+}
 ```
 
 ---
