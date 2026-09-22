@@ -37,17 +37,26 @@ title: Web 2 - Séance 07 - Projet Vite et composant React
 # Créer un projet Vite + React + TypeScript
 
 ```bash
-npm create vite@latest frontend
-cd frontend
-npm install
-npm run dev
+npm create vite@latest
 ```
 
 - Crée un projet préconfiguré avec Vite
-- `frontend` &rarr; nom du projet et du dossier créé
-- Vite demande quel template utiliser
-  - Sélectionner `React` puis `TypeScript` (répondre non aux options expérimentales)
-  - Ou tout en une commande : `npm create vite@latest frontend -- --template react-ts`
+- Pose des questions pour choisir :
+  - le nom de projet
+  - le framework &rarr; React
+  - le langage &rarr; TypeScript
+  - le linter &rarr; Oxlint
+
+```bash
+npm create vite@latest frontend -- --template react-ts --no-eslint
+```
+
+- Choix préconfigurés pour le cours :
+  - `frontend` : nom du projet et du dossier créé
+  - `--` : sépare les options de npm de celles transmises à Vite (obligatoire)
+  - `--template react-ts` : React avec TypeScript
+  - `--no-eslint` : utilise le linter Oxlint
+
 ---
 
 # Structure du projet
@@ -57,12 +66,14 @@ frontend/
 ├── src/
 │   ├── main.tsx          # Point d'entrée, monte App
 │   ├── App.tsx           # Composant principal
-│   ├── App.css           # Styles du composant App 
+│   ├── App.css           # Styles du composant App
 │   ├── index.css         # Styles globaux
-│   └── vite-env.d.ts     # Types Vite
+│   └── assets/           # Images importées par le code
+├── public/               # Fichiers servis tels quels (favicon)
 ├── index.html            # HTML root
 ├── vite.config.ts        # Config Vite
 ├── tsconfig.json         # Config TypeScript
+├── .oxlintrc.json        # Config du linter
 └── package.json          # Dépendances et scripts
 ```
 
@@ -211,7 +222,6 @@ createRoot(document.getElementById("root")!).render(
 );
 ```
 
-- `document.getElementById("root")!` : le `!` de la séance 01, `#root` existe forcément dans `index.html`
 - `StrictMode` : mode de développement qui signale les erreurs courantes
 
 ---
@@ -268,7 +278,7 @@ src/
 
 # Exercice filé S07
 
-1. Créez l'application frontend dans votre dossier d'exercices MiamMiam, avec Vite + React + TypeScript
+1. Créez l'application `frontend` dans votre dossier d'exercices MiamMiam
 2. Créez un fichier `RecipeCard.tsx` dans le dossier `src/components`
 3. Dans ce fichier, créez l'objet `recipe` suivant :
 ```tsx
@@ -280,11 +290,10 @@ const recipe = {
 };
 ```
 
-4. Créez un composant `RecipeCard` qui affiche cette recette avec la structure suivante :
-    - Titre (h2) et image (img), depuis l'objet `recipe`
-    - Durée et difficulté (p), depuis l'objet `recipe`
-    - Liste des ingrédients (ul > li), écrite en dur : pâtes, œufs, lard, fromage
-    - Liste des étapes (ol > li), écrite en dur : cuire les pâtes, mélanger les œufs et le fromage, faire revenir le lard, mélanger le tout
+4. Toujours dans ce fichier, créez un composant `RecipeCard` qui affiche cette recette avec :
+    - Son titre à l'aide d'une balise h2
+    - Son image à l'aide d'une balise img
+    - Sa durée et sa difficulté à l'aide de balises p
 
 ---
 
@@ -305,15 +314,16 @@ export default App;
 ```
 
 6. Intégrez le composant `RecipeCard` dans `App.tsx` pour qu'il s'affiche sous le titre
+7. Intégrez un deuxième composant `RecipeCard` dans `App.tsx`
+8. Vérifiez que les deux cartes s'affichent correctement dans le navigateur
 
 ---
 
 # Exercice complémentaire EC03
 
 1. Téléchargez la page HTML de la séance 07 sur moodle et ouvrez-la dans le navigateur
-2. Créez un projet `EC03` dans votre dossier d'exercices complémentaires, avec Vite + React + TypeScript
-3. Sur papier, découpez la page en composants : regroupez les parties qui vont ensemble et qui peuvent être réutilisées
+2. Créez un projet `EC03` dans votre dossier d'exercices complémentaires
+3. Sur papier, découpez la page en différents composants
 4. Créez les composants et assemblez-les dane le projet pour reproduire la page à l'identique
 5. Copiez le CSS de la page dans `src/index.css` (le contenu généré par Vite peut être supprimé)
-6. Vérifiez que la page s'affiche comme l'originale et que la console du navigateur n'affiche **aucun warning**
-7. Pièges à repérer en convertissant le HTML en JSX : `class`, `for`, `style="..."`, balises non fermées, …
+6. Vérifiez que la page s'affiche comme l'originale
