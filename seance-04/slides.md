@@ -261,6 +261,27 @@ class UsersService {
 
 ---
 
+# Controller l'inscription avec bcrypt
+
+```ts
+authController.post("/register", async (req: Request, res: Response) => {
+  const body = req.body;
+  if (!isNewUserDTO(body)) return res.sendStatus(400);
+  const newUser: NewUser = body;
+
+  const user = await UsersService.create(newUser);
+  if (!user) return res.sendStatus(409); // Conflit : email déjà utilisé
+
+  // Générer un token JWT pour l'utilisateur
+  const token = AuthService.login(user.email, user.password);
+  if (!token) return res.sendStatus(500); // should not happen
+
+  return res.status(201).json({ token });
+});
+```
+
+---
+
 # Connexion avec bcrypt
 
 ```ts
@@ -282,6 +303,23 @@ class AuthService {
     });
   }
 }
+```
+
+---
+
+# Route de connexion avec bcrypt
+
+```ts
+authController.post("/login", async (req: Request, res: Response) => {
+  const body: unknown = req.body;
+  if (!isCredentialsDTO(body)) return res.sendStatus(400);
+
+  const { email, password } = body;
+  const token = await AuthService.login(email, password);
+  if (!token) return res.sendStatus(401); // Non autorisé : email ou mot de passe incorrect
+
+  res.json({ token });
+});
 ```
 
 ---
