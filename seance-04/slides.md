@@ -209,27 +209,6 @@ async function hashPassword(plainPassword: string): Promise<string> {
 
 ---
 
-# bcrypt : Hash et vérification
-
-```ts
-import bcrypt from "bcrypt";
-
-// Créer un hash
-async function hashPassword(plainPassword: string): Promise<string> {
-  const saltRounds = 10;
-  const hash = await bcrypt.hash(plainPassword, saltRounds);
-  return hash;
-}
-
-// Comparer le mot de passe saisi avec le hash stocké
-async function verifyPassword(plainPassword: string, storedHash: string): Promise<boolean> {
-  const isMatch = await bcrypt.compare(plainPassword, storedHash);
-  return isMatch;
-}
-```
-
----
-
 # Inscription avec bcrypt
 
 ```ts
