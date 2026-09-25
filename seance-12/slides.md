@@ -26,7 +26,7 @@ button.addEventListener("click", () => console.log("Cliqué !"));
 
 - Nom en **camelCase** : `onClick`, `onChange`, `onSubmit`, `onKeyDown`, `onMouseEnter`, …
 - La valeur est une **fonction**, jamais un string
-- Le listener est directement attaché à l'élément concerné via un attribut JSX
+- Le listener est déclaré directement sur l'élément concerné, dans le JSX
 
 ---
 
@@ -51,7 +51,7 @@ const RecipeActions = () => {
 - `onClick={handleDelete()}` exécute la fonction **pendant le rendu** et passe son résultat (`undefined`)
 - Fonction fléchée : utile pour passer un argument, `onClick={() => handleDelete(recipe.id)}`
 - Convention :
-  - Évévenement `foo` (e.g. `click`)
+  - Événement `foo` (e.g. `click`)
   - Attribut JSX `onFoo` (e.g. `onClick`)
   - Handler `handleFoo` (e.g. `handleClick`)
 
@@ -60,11 +60,11 @@ const RecipeActions = () => {
 
 # Typer les événements
 
-Chaque type d'événement a un type TypeScript, paramétré par l'élément HTML concerné.
-
 ```tsx
-const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-  event.preventDefault();
+import type { ChangeEvent, MouseEvent, SubmitEvent } from "react";
+
+const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => { // FormEvent trouvable en ligne, déprécié récemment
+  event.preventDefault(); // pas de rechargement de la page
 };
 
 const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,15 +74,12 @@ const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
   console.log(event.currentTarget); // le bouton
 };
-
-const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-  if (event.key === "Enter") console.log("Entrée");
-};
 ```
 
-- Écrit **directement** dans le JSX (`onChange={(e) => ...}`), le type est inféré : inutile de l'écrire.
-- Si on a pas besoin de l'événement, on peut l'omettre : `onClick={() => console.log("Cliqué !")}`
+- Sans fonction handler, le type peut être inféré : `onChange={(e) => ...}`
+- Si on n'a pas besoin de l'événement, on peut l'omettre : `onClick={() => console.log("Cliqué !")}`
 - Si le type de l'événement n'est pas nécessaire, on peut utiliser `SyntheticEvent` générique à la place : `handleClick = (event: SyntheticEvent) => { ... }`
+- ⚠️ Les types viennent de `"react"` : sans l'import, `MouseEvent`, `KeyboardEvent` et `SubmitEvent` désignent les types **natifs** du DOM
 
 ---
 
@@ -93,8 +90,8 @@ const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 ```tsx
 <form onSubmit={(e) => {
   e.preventDefault();
-  const title = (e.target as HTMLFormElement).elements.namedItem("title") as HTMLInputElement;
-  console.log(title.value);
+  const input = e.currentTarget.elements.namedItem("title") as HTMLInputElement;
+  console.log(input.value);
 }}>
   <input name="title" />
   <button type="submit">Créer</button>
@@ -108,7 +105,7 @@ const [title, setTitle] = useState("");
 <input value={title} onChange={(e) => setTitle(e.target.value)} />
 ```
 
-- `value={title}` : le champ affiche **toujours** la valeur correspondante à l'état
+- `value={title}` : le champ affiche **toujours** la valeur de l'état
 - `onChange` : à chaque frappe, on met l'état à jour, ce qui provoque un rendu et réaffiche le champ
 
 ---
@@ -172,7 +169,7 @@ return (
 const TitleForm = () => {
   const [title, setTitle] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault(); // pas de rechargement de la page
     console.log("Nouveau titre :", title);
     setTitle("");           // vider le champ
@@ -203,6 +200,7 @@ interface RecipeFormData {
   description: string;
   prepTime: string; // chaînes : ce que l'utilisateur a tapé
   cookTime: string;
+  categoryId: string;
 }
 
 const [form, setForm] = useState<RecipeFormData>({
@@ -210,6 +208,7 @@ const [form, setForm] = useState<RecipeFormData>({
   description: "",
   prepTime: "",
   cookTime: "",
+  categoryId: "",
 });
 ```
 
@@ -283,7 +282,7 @@ const titleError = form.title.trim().length < 3;
 const prepTimeError = form.prepTime === "" || Number(form.prepTime) < 0;
 const isValid = !titleError && !prepTimeError;
 
-const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
   event.preventDefault();
   setSubmitted(true);
   if (!isValid) return;
@@ -305,9 +304,8 @@ const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 # Récapitulatif Séance 12
 
 - **Événements React** — `onClick`, `onChange`, `onSubmit` en camelCase, valeur = fonction
-- **Délégation** — React écoute à la racine et fournit un événement synthétique
 - **Handler** — Passer la fonction, ne pas l'appeler : `onClick={handleClick}`
-- **Typage** — `ChangeEvent<HTMLInputElement>`, `FormEvent<HTMLFormElement>`… importés avec `import type`
+- **Typage** — `ChangeEvent<HTMLInputElement>`, `SubmitEvent<HTMLFormElement>`… importés depuis `"react"` avec `import type`
 - **Champ contrôlé** — `value` + `onChange`, l'état est la source de vérité
 - **Valeurs** — `e.target.value` est toujours une chaîne, `e.target.checked` pour les cases à cocher
 - **Soumission** — `onSubmit` sur le formulaire et `preventDefault()`
@@ -322,9 +320,9 @@ const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 
 1. Créez un composant `RecipeForm` avec un état `form` contenant : titre, description, URL de l'image, temps de préparation, temps de cuisson, portions, difficulté et catégorie
 2. Utilisez des `TextField` MUI ; la catégorie est une liste déroulante générée à partir du module `categories` (avec `map`)
-3. Pour la difficulté, utilisez un `Rating` modifiable (`value` et `onChange` : consultez sa documentation)
+3. Pour la difficulté, utilisez un `Rating` modifiable (`value` et `onChange` : consultez sa documentation ; attention, la nouvelle valeur est de type `number | undefined`)
 4. À la soumission, construisez un objet dont les champs numériques sont convertis en nombres et affichez-le dans la console, puis videz le formulaire
-5. Validez : titre d'au moins 3 caractères, temps positifs, au moins 1 portion, catégorie choisie ; les erreurs s'affichent sous les champs après la première soumission
+5. Validez : titre d'au moins 3 caractères, temps positifs ou nuls (une recette sans cuisson a un temps de cuisson de 0), au moins 1 portion, catégorie choisie ; les erreurs s'affichent sous les champs après la première soumission
 6. Affichez `RecipeForm` au-dessus de la liste des recettes
 
 ---

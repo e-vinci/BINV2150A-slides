@@ -309,7 +309,7 @@ const RecipeDetail = ({ recipe }: RecipeDetailProps) => {
 - **useState** — `const [valeur, setValeur] = useState(initiale)`
 - **Hooks** — Fonctions `useXxx`, appelées au premier niveau d'un composant
 - **Instance** — Chaque composant affiché a son propre état
-- **Typage** — Inféré, ou explicite : `useState<Recipe | null>(null)`
+- **Typage** — Inféré, ou explicite : `useState<Recipe | undefined>(undefined)`
 - **Photo du rendu** — La valeur de l'état ne change pas pendant un rendu
 - **Mise à jour fonctionnelle** — `setX((prev) => ...)` quand la valeur dépend de l'ancienne
 - **Valeurs dérivées** — Calculées pendant le rendu, jamais stockées dans un état
