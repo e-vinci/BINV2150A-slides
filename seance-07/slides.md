@@ -64,23 +64,18 @@ npm create vite@latest frontend -- --template react-ts --no-eslint
 ```
 frontend/
 ├── src/
-│   ├── main.tsx          # Point d'entrée, monte App
-│   ├── App.tsx           # Composant principal
+│   ├── main.tsx          # Point d'entrée javascript, monte le composant App à l'élément #root
+│   ├── App.tsx           # Composant racine de React
 │   ├── App.css           # Styles du composant App
 │   ├── index.css         # Styles globaux
 │   └── assets/           # Images importées par le code
 ├── public/               # Fichiers servis tels quels (favicon)
-├── index.html            # HTML root
-├── vite.config.ts        # Config Vite
+├── index.html            # HTML root, contient <div id="root"></div> pour React
+├── vite.config.ts        # Config Vite, rien à modifier pour l'instant
 ├── tsconfig.json         # Config TypeScript
 ├── .oxlintrc.json        # Config du linter
 └── package.json          # Dépendances et scripts
 ```
-
-- **vite.config.ts**: Configure le bundler et le dev server, rien à modifier pour l'instant
-- **index.html**: Contient `<div id="root"></div>` pour React, ne modifier que le `<title>` et `lang`
-- **main.tsx**: Lance l'application en montant le composant `App` dans le DOM à l'élément `#root`
-- **App.tsx**: Composant racine, où commence votre logique
 
 ---
 
@@ -89,18 +84,18 @@ frontend/
 Fichiers `.tsx` = TypeScript + JSX. Permet d'écrire du HTML-like dans le code TypeScript.
 
 ```tsx
-const element = <h1>Bienvenue!</h1>
+const element = <h1>Bienvenue!</h1>;
 
 // Avec des variables
-const title = "Recettes"
-const greeting = <h2>{title}</h2>
+const title = "Recettes";
+const greeting = <h2>{title}</h2>;
 
 // Avec des fonctions
 function formatDuration(minutes: number): string {
   return `${minutes} minutes`;
 }
 const duration = 1; // en heures
-const info = <p>Durée: {formatDuration(duration * 60)}</p>
+const info = <p>Durée: {formatDuration(duration * 60)}</p>;
 
 // Avec des conditions (ternaires)
 const difficulty = "facile";
@@ -127,10 +122,9 @@ const badge = (
 
 # Composants React
 
-Un composant React &rarr; une fonction TypeScript qui retourne du JSX
+Un composant React est une fonction TypeScript qui retourne du JSX
 
 ```tsx
-// Convention: PascalCase pour les noms de composants
 const Welcome = () => {
   return <h1>Bienvenue dans MiamMiam!</h1>;
 };
@@ -160,7 +154,7 @@ const RecipeCard = () => {
     <div className="recipe-card">
       <h2>Pâtes Carbonara</h2>
       <img
-        src="carbonara.jpg"
+        src="https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800"
         alt="Pâtes carbonara"
         style={{ width: "200px", height: "150px", objectFit: "cover" }}
       />
@@ -188,7 +182,7 @@ Importer et rendre le composant comme une balise JSX
 
 ```tsx
 // App.tsx
-import RecipeCard from "./RecipeCard";
+import RecipeCard from "./components/RecipeCard";
 
 const App = () => {
   return (
@@ -267,10 +261,10 @@ src/
 
 # Récapitulatif
 
-- **React** - bibliothèque pour construire des interfaces utilisateur
-- **Vite** - bundler moderne pour compiler et servir le code React
-- **JSX** - syntaxe HTML-like dans le code TypeScript
-- **Composants** - fonctions TypeScript qui retournent du JSX, organisés en fichiers
+- **React** — bibliothèque pour construire des interfaces utilisateur
+- **Vite** — bundler moderne pour compiler et servir le code React
+- **JSX** — syntaxe HTML-like dans le code TypeScript
+- **Composants** — fonctions TypeScript qui retournent du JSX, organisés en fichiers
 
 **Prochaine séance** : Séance 08 — Props et children
 
@@ -284,7 +278,7 @@ src/
 ```tsx
 const recipe = {
   title: "Pâtes Carbonara",
-  image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800",
+  imageUrl: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800",
   duration: 20,
   difficulty: "Facile",
 };
@@ -324,6 +318,6 @@ export default App;
 1. Téléchargez la page HTML de la séance 07 sur moodle et ouvrez-la dans le navigateur
 2. Créez un projet `EC03` dans votre dossier d'exercices complémentaires
 3. Sur papier, découpez la page en différents composants
-4. Créez les composants et assemblez-les dane le projet pour reproduire la page à l'identique
+4. Créez les composants et assemblez-les dans le projet pour reproduire la page à l'identique
 5. Copiez le CSS de la page dans `src/index.css` (le contenu généré par Vite peut être supprimé)
 6. Vérifiez que la page s'affiche comme l'originale
