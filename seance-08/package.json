@@ -1,0 +1,14 @@
+{
+  "name": "binv2150-a-seance-08",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "slidev",
+    "build": "slidev build",
+    "export": "slidev export"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.19.1",
+    "@slidev/theme-default": "^0.25.0"
+  }
+}
