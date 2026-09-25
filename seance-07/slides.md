@@ -79,6 +79,21 @@ frontend/
 
 ---
 
+# Commandes du projet
+
+- `npm install` : installe les dépendances du projet
+- `npm run dev` : lance le serveur de développement Vite
+  - Port par défaut : 5173 (http://localhost:5173)
+  - Compile le code TypeScript/JSX à la volée
+  - Recharge automatiquement la page dans le navigateur quand un fichier est modifié
+- `npm run build` : compile le projet pour la production
+  - Compile le code TypeScript/JSX en JavaScript compatible navigateur
+  - Minifie le code et les fichiers CSS
+  - Copie les fichiers statiques optimisés dans le dossier `dist/`
+  - Serveur de production : serveur web de fichiers statiques avec le contenu du dossier `dist/`
+
+---
+
 # JSX: HTML en JavaScript/TypeScript
 
 Fichiers `.tsx` = TypeScript + JSX. Permet d'écrire du HTML-like dans le code TypeScript.

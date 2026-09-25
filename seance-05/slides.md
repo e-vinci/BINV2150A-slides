@@ -19,6 +19,35 @@ Le JavaScript permet de rendre la page dynamique et interactive.
 
 ---
 
+# Serveur Frontend
+
+- Serveur web de fichiers statiques
+- Reçoit des requêtes HTTP du navigateur demandant des fichiers statiques
+  - L'utilisateur accède à http://localhost:5500/page.html dans son navigateur &rarr; Le navigateur envoie une requête GET /page.html
+  - Le serveur renvoie le fichier correspondant au navigateur
+  - Si le fichier fait référence à d'autres fichiers (`<link>` pour le CSS ou les polices, `<script>` pour le JavaScript, `<img>` pour les images, …), le navigateur fait d'autres requêtes HTTP pour les récupérer
+  - Si l'URL fait référence à un dossier (`/`, `/admin`, …), le serveur renvoie le fichier `index.html` de ce dossier
+  - Si le fichier demandé n'existe pas, le serveur renvoie une erreur 404
+- Le navigateur interprète le HTML, applique le CSS et exécute le JS pour afficher la page
+  - &rarr; Le code est exécuté **dans le navigateur**, pas sur le serveur
+  - &rarr; La console se trouve dans les outils de développement du navigateur (F12)
+
+---
+
+# Serveur de développement avec Live Server
+
+- Extension VSCode : Live Server
+- Permet de lancer un serveur web de fichiers statiques
+- Permet de recharger automatiquement la page dans le navigateur quand un fichier est modifié
+
+![](./go-live-button.png)
+
+- Cliquez sur le bouton "Go Live" en bas à droite de VSCode pour lancer le serveur
+- Sert les fichiers du projet ouvert dans VSCode, avec la structure de dossiers du projet
+- Port par défaut : 5500 (http://localhost:5500)
+
+---
+
 # Le DOM (Document Object Model)
 
 Le DOM est une représentation en arbre de votre HTML
@@ -61,7 +90,7 @@ JavaScript VS TypeScript :
 - Pas de typage statique, pas d'interfaces
 - Pas de compilation : le fichier est exécuté tel quel
 
-Le code JS est exécuté **dans le navigateur**, pas sur le serveur Node.js. <br>
+Le code JS est exécuté **dans le navigateur**, pas sur le serveur. <br>
 &rarr; la console se trouve dans les outils de développement du navigateur (F12).
 
 ---
@@ -306,6 +335,10 @@ Utilisez `innerHTML` pour le HTML structuré, `textContent` pour les données po
 ---
 
 # Récapitulatif
+
+- **Web statique** : HTML + CSS + JS, servi par un serveur web
+- **DOM** : représentation en arbre du HTML, manipulable avec JS
+- **JS dans le navigateur** : `<script>` ou fichier externe, exécuté après le chargement du DOM
 
 | Opération | Méthode |
 |-----------|---------|
