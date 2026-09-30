@@ -84,6 +84,127 @@ const App = () => {
 
 ---
 
+# Une prop peut être une fonction
+##
+
+L'état `recipes` est dans `App`, mais le bouton « Supprimer » est dans `RecipeCard`. Seul `App` peut appeler `setRecipes`.
+
+- En JavaScript, une fonction est une **valeur** comme une autre
+- On peut la stocker dans une variable ou la passer en argument
+- Elle peut donc aussi être passée en **prop**
+- Le parent crée une fonction qui modifie **son** état, et la donne à l'enfant
+- L'enfant l'appelle quand l'événement se produit, sans savoir ce qu'elle fait
+
+---
+
+# Une prop peut être une fonction (suite)
+
+```tsx
+interface RecipeCardProps {
+  recipe: Recipe;
+  onDelete: (id: number) => void; // type d'une fonction : paramètres => type de retour
+}
+
+const RecipeCard = ({ recipe, onDelete }: RecipeCardProps) => (
+  <Card>
+    {/* ... */}
+    <Button color="error" onClick={() => onDelete(recipe.id)}>Supprimer</Button>
+  </Card>
+);
+```
+
+- `(id: number) => void` : une fonction qui reçoit un nombre et ne retourne rien
+- Convention : `onXxx` pour la prop, comme `onClick` ou `onChange` (séance 12)
+
+---
+
+# Le parent fournit la fonction
+
+```tsx
+const App = () => {
+  const [recipes, setRecipes] = useState<Recipe[]>(initialRecipes);
+
+  const deleteRecipe = (id: number) => {
+    setRecipes(recipes.filter((recipe) => recipe.id !== id));
+  };
+
+  return <RecipeList recipes={recipes} onDelete={deleteRecipe} />;
+};
+```
+
+```tsx
+interface RecipeListProps {
+  recipes: Recipe[];
+  onDelete: (id: number) => void;
+}
+
+const RecipeList = ({ recipes, onDelete }: RecipeListProps) => (
+  <Grid container spacing={2}>
+    {recipes.map((recipe) => (
+      <Grid key={recipe.id} size={{ xs: 12, sm: 6, md: 4 }}>
+        <RecipeCard recipe={recipe} onDelete={onDelete} /> {/* transmise telle quelle */}
+      </Grid>
+    ))}
+  </Grid>
+);
+```
+
+---
+
+# Déroulement d'une suppression
+
+```
+1. App         crée deleteRecipe, qui utilise setRecipes
+               <RecipeList onDelete={deleteRecipe} />
+2. RecipeList  reçoit onDelete et le transmet à chaque carte
+               <RecipeCard recipe={recette 3} onDelete={onDelete} />
+3. Clic sur « Supprimer » de la recette 3
+               onDelete(3) → c'est deleteRecipe(3), la fonction de App, qui s'exécute
+4. App         setRecipes(nouveau tableau sans la recette 3) → nouveau rendu de App
+5. RecipeList  reçoit le nouveau tableau → la carte 3 n'est plus affichée
+```
+
+- L'**état** ne quitte jamais `App` : seule la fonction voyage vers le bas
+- L'**événement** remonte : l'enfant signale « supprimer la 3 », le parent décide quoi faire
+- `RecipeCard` est réutilisable : ailleurs, `onDelete` pourrait faire autre chose (demander une confirmation, appeler le serveur…)
+
+---
+
+# Exemple : ajouter depuis le formulaire
+
+```ts
+// models/recipe.ts
+export type NewRecipe = Omit<Recipe, "id" | "authorId">; // Recipe sans id ni authorId
+```
+
+```tsx
+// RecipeForm.tsx
+interface RecipeFormProps {
+  onAdd: (recipe: NewRecipe) => void;
+}
+
+const RecipeForm = ({ onAdd }: RecipeFormProps) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onAdd({ title: form.title, prepTime: Number(form.prepTime), /* ... */ });
+    setForm(initialForm);
+  };
+  // ...
+};
+```
+
+```tsx
+// App.tsx : c'est le parent qui complète la recette et modifie la liste
+const addRecipe = (newRecipe: NewRecipe) => {
+  const recipe: Recipe = { ...newRecipe, id: Date.now(), authorId: 1 }; // authorId fictif pour l'instant
+  setRecipes([...recipes, recipe]);
+};
+
+<RecipeForm onAdd={addRecipe} />
+```
+
+---
+
 # Un composant contrôlé par son parent
 
 ```tsx
@@ -104,6 +225,7 @@ const SearchBar = ({ value, onChange }: SearchBarProps) => {
 };
 ```
 
+- Même mécanisme que `onDelete`, appliqué à un champ de saisie
 - `SearchBar` n'a **plus d'état** : elle affiche ce qu'on lui donne et signale les changements
 - C'est exactement le principe d'un champ contrôlé (séance 12) : `value` + `onChange`, appliqué à **notre** composant
 - On peut passer directement le setter (`onChange={setQuery}`) : ses types correspondent
@@ -249,7 +371,8 @@ App (état : user)
 - **Flux unidirectionnel** — Les données descendent par les props
 - **Lifting state up** — L'état partagé est placé dans le plus proche parent commun
 - **Composant contrôlé** — `value` + `onChange` pour nos propres composants
-- **Événements vers le haut** — L'enfant appelle une fonction reçue en prop
+- **Fonction en prop** — Le parent passe `onAdd`, `onDelete`… ; l'enfant les appelle, le parent modifie son état
+- **Événements vers le haut** — L'enfant signale ce qui s'est passé, le parent décide quoi faire
 - **Source de vérité unique** — Chaque donnée est stockée à un seul endroit
 - **Valeurs dérivées** — Filtrage et compteurs calculés pendant le rendu
 - **Placement** — Le plus bas possible, là où tous les utilisateurs de la donnée y ont accès
@@ -261,10 +384,15 @@ App (état : user)
 
 # Exercice filé S14 partie 1
 
-1. Modifiez la liste de recettes pour qu'elle corresponde à une variable d'état
-2. Faites en sorte que le composant `AddRecipeForm` ajoute une recette à la liste quand on soumet le formulaire
-3. Ajoutez un bouton « Supprimer » à chaque carte de recette
-4. Faites en sorte que ce bouton supprime la recette correspondante de la liste
+La liste des recettes devient un état de `App`, modifié par le formulaire et par les cartes.
+
+1. Dans `App`, créez un état `recipes` initialisé avec le module `data/recipes` ; `RecipeList` ne lit plus le module elle-même, elle reçoit les recettes en prop
+2. Ajoutez le type `NewRecipe` dans `models/recipe.ts`
+3. Ajoutez à `RecipeForm` une prop `onAdd: (recipe: NewRecipe) => void` : à la soumission valide, le formulaire appelle `onAdd` avec la recette (champs numériques convertis, `tags` vide) au lieu de l'afficher dans la console
+4. Dans `App`, écrivez `addRecipe` : elle complète la recette (id généré, `authorId` à 1 pour l'instant) et l'ajoute à l'état ; passez-la à `RecipeForm`
+5. Ajoutez à `RecipeCard` une prop `onDelete: (id: number) => void` et un bouton « Supprimer » qui l'appelle ; `RecipeList` reçoit aussi `onDelete` et le transmet à chaque carte
+6. Dans `App`, écrivez `deleteRecipe` et passez-la à `RecipeList`
+7. Vérifiez qu'une recette ajoutée apparaît dans la liste et peut être supprimée, puis rechargez la page : pourquoi retrouve-t-on la liste de départ ?
 
 ---
 

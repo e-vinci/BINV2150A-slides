@@ -19,6 +19,7 @@ Depuis la séance 10, les recettes viennent d'un module de données : un tableau
 Pour que la liste change à l'écran, elle doit devenir un **état** :
 
 ```tsx
+// "as" renomme l'import : le nom recipes reste libre pour l'état
 import { recipes as initialRecipes } from "./data/recipes";
 
 const App = () => {
@@ -147,16 +148,17 @@ setRecipes(recipes.map((r) => { if (r.id === id) r.title = title; return r; }));
 Chaque élément d'une liste a besoin d'un identifiant unique (pour la `key` notamment).
 
 ```ts
-const id = Math.max(...recipes.map(r => r.id)) + 1; // 4, si les ids existants sont 1, 2 et 3
+// Plus grand id existant + 1
+const nextId = Math.max(...recipes.map((r) => r.id)) + 1; // 4, si les ids existants sont 1, 2 et 3
 
 // Nombre basé sur l'heure, en millisecondes
-const id = Date.now();              // 1790000000000
+const timeId = Date.now();          // 1790000000000
 
 // Identifiant aléatoire standard (UUID), de type string
 const uuid = crypto.randomUUID();   // "550e8400-e29b-41d4-a716-446655440000"
 ```
 
-- `Math.max(...recipes.map(r => r.id)) + 1` est simple et efficace, mais peut avoir des trous et des collisions si on supprime des recettes
+- `Math.max(...) + 1` est simple, mais réutilise l'id d'une recette supprimée si c'était la plus grande, et donne `-Infinity` sur une liste vide
 - `Date.now()` suffit si on ne crée pas plusieurs recettes dans la même milliseconde
 - `crypto.randomUUID()` est plus sûr, mais impose un `id: string`
 - Ce sont des identifiants **temporaires** : en Partie 4, c'est le backend qui attribuera l'id
@@ -241,9 +243,22 @@ const updateIngredient = (key: number, field: IngredientField, value: string) =>
 - **Ajouter** — `[...arr, x]`
 - **Supprimer** — `arr.filter(...)`
 - **Modifier** — `arr.map(...)` avec `{ ...item, prop }` pour l'élément concerné
-- **Identifiants** — `Date.now()` ou `crypto.randomUUID()`, temporaires jusqu'à la Partie 4
+- **Identifiants** — `Math.max(...) + 1`, `Date.now()` ou `crypto.randomUUID()`, temporaires jusqu'à la Partie 4
 
 **Prochaine séance** : Séance 14 — État partagé
+
+---
+
+# Exercice filé S13
+
+Tout se passe dans `RecipeForm` : les ingrédients et les étapes sont des **états locaux** du formulaire.
+
+1. Ajoutez un état `ingredients` (tableau de `IngredientInput`) : un champ nom, quantité et unité par ingrédient, un bouton pour retirer chaque ingrédient, et un bouton « Ajouter un ingrédient »
+2. Ajoutez de la même façon un état `steps` : un champ texte multiligne par étape (chaque étape a aussi besoin d'un identifiant local pour sa `key`), avec des boutons pour ajouter et retirer une étape
+3. Validez : au moins un ingrédient avec un nom et une quantité positive, au moins une étape non vide ; les erreurs s'affichent après la première soumission, comme en séance 12
+4. À la soumission, l'objet affiché dans la console contient `ingredients` (quantités converties en nombres, sans la propriété `key`) et `steps` (un simple tableau de chaînes)
+5. Après la soumission, videz tout le formulaire, ingrédients et étapes compris
+6. **Optionnel** : ajoutez à chaque étape des boutons pour la monter ou la descendre dans la liste, sans muter le tableau
 
 ---
 
@@ -252,13 +267,13 @@ const updateIngredient = (key: number, field: IngredientField, value: string) =>
 1. Créez un projet `EC06` avec Vite + React + TypeScript
 2. Commencez par afficher un catalogue de 5 produits statiques de votre choix, 
     - Chaque produit affiche un id, un nom, un prix et un bouton « Ajouter au panier »
-3. Le panier est variable d'état contenant une collection d'objets de type `{ productId, quantity }`
+4. Le panier est une variable d'état contenant une collection d'objets de type `{ productId, quantity }`
     - Quand on clique sur « Ajouter au panier » pour un produit non présent, un nouvel objet est ajouté à la collection avec une quantité de 1
     - Quand on clique sur « Ajouter au panier » pour un produit déjà présent, sa quantité augmente de 1
-4. Affichez en dessous du catalogue la liste des produits dans le panier
+5. Affichez en dessous du catalogue la liste des produits dans le panier
     - Chaque ligne du panier affiche le nom du produit, sa quantité, son prix total (prix * quantité) et trois boutons : « − », « + » et « Retirer »
     - Quand on clique sur « − », la quantité diminue de 1 ; si elle atteint 0, la ligne disparaît du panier
     - Quand on clique sur « + », la quantité augmente de 1
     - Quand on clique sur « Retirer », la ligne disparaît du panier
-5. Affichez le total du panier (somme des prix totaux de chaque ligne) en dessous de la liste du panier
+6. Affichez le total du panier (somme des prix totaux de chaque ligne) en dessous de la liste du panier
 
