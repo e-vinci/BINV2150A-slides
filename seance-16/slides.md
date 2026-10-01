@@ -40,7 +40,9 @@ const RecipeDetailPage = ({ recipes }: RecipeDetailPageProps) => {
 
 - Retourne un objet : une propriété par segment dynamique de la route
 - Le nom de la propriété est celui déclaré dans `path` (`:id` &rarr; `id`)
-- Le composant est **réaffiché** quand l'URL change (de `/recipes/3` à `/recipes/5`)
+- Le composant est **réaffiché** quand l'URL change (de `/recipes/3` à `/recipes/5`), 
+  - ⚠️ Réaffiché, pas recréé : ses états (par exemple le nombre de portions choisi) sont **conservés**
+  - Pour repartir de zéro à chaque recette, il faut donner une `key` au composant
 
 ---
 
@@ -105,12 +107,13 @@ navigate(-1);                         // comme le bouton « Précédent »
 `replace` : l'utilisateur ne doit pas pouvoir revenir sur la page actuelle avec « Précédent ».
 
 ```
-Historique après navigate("/")             : [ /, /recipes/new, / ]
-                                                   ↑ « Précédent » revient au formulaire
-Historique après navigate("/", { replace }) : [ /, / ]
+Historique après navigate("/")                /, /recipes/new, /
+Historique après navigate("/", { replace })   /, /
 ```
 
 Exemple : après la suppression d'une recette depuis sa page de détail, revenir sur cette page n'a plus de sens.
+
+> ⚠️ Si la page a été ouverte directement (lien partagé, nouvel onglet), il n'y a pas de page précédente dans l'application : `navigate(-1)` quitte le site. Un lien vers `/` est plus sûr pour un bouton « Retour à la liste ».
 
 ---
 
@@ -136,9 +139,9 @@ const RecipeDetailPage = ({ recipes, onDelete }: RecipeDetailPageProps) => {
   };
 
   return (<>
-      <Button onClick={() => navigate(-1)}>Retour</Button>
-      <RecipeDetail recipe={recipe} />
-      <Button color="error" onClick={handleDelete}>Supprimer</Button>
+    <Button onClick={() => navigate(-1)}>Retour</Button>
+    <RecipeDetail recipe={recipe} />
+    <Button color="error" onClick={handleDelete}>Supprimer</Button>
   </>);
 };
 ```
@@ -164,6 +167,7 @@ const Layout = () => {
 Utile pour adapter l'affichage à la page courante :
 
 ```tsx
+const navigate = useNavigate();
 const isHome = location.pathname === "/";
 
 {!isHome && <Button onClick={() => navigate(-1)}>Retour</Button>}
@@ -178,7 +182,7 @@ Pour mettre en évidence le lien actif, `NavLink` (séance 15) le fait déjà.
 Les **query parameters** décrivent une variante de la page : filtres, tri, pagination.
 
 ```
-/?search=chocolat&categoryId=3
+/?search=chocolat
 ```
 
 Placer les filtres dans l'URL plutôt que dans un état :
@@ -200,7 +204,6 @@ const HomePage = ({ recipes }: HomePageProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const query = searchParams.get("search") ?? "";        // string | null → string
-  const categoryId = searchParams.get("categoryId");     // string | null
 
   const handleSearch = (value: string) => {
     setSearchParams({ search: value }); // URL : /?search=value
@@ -214,8 +217,6 @@ const HomePage = ({ recipes }: HomePageProps) => {
 - Fonctionne comme `useState` : une valeur et une fonction pour la remplacer
 - `searchParams.get(nom)` : la valeur (toujours une chaîne), ou `null` si absente
 - `setSearchParams(objet)` : remplace **tous** les paramètres de l'URL et provoque un nouveau rendu
-
-> Permet de synchroniser l'état de l'application avec l'URL, pour que les filtres soient partageables et persistants. De cette façon, l'URL devient une **source de vérité** pour les filtres et l'utilisateur peut partager ou mettre en favori la page avec les filtres actifs.
 
 ---
 
@@ -238,6 +239,7 @@ const HomePage = ({ recipes }: HomePageProps) => {
 1. Dans `RecipeDetailPage`, lisez l'id avec `useParams` et affichez la recette correspondante ; affichez un message et un lien vers la liste si elle n'existe pas (testez `/recipes/abc` et `/recipes/999`)
 2. Ajoutez un bouton « Retour » en haut de la page de détail
 3. Déplacez le bouton « Supprimer » de `RecipeCard` vers la page de détail ; après la suppression, revenez à la liste sans pouvoir revenir sur la page supprimée
-4. Après l'ajout d'une recette, naviguez vers la page de détail de la nouvelle recette (`onAdd` doit alors retourner l'id créé)
-5. Ajoutez un bouton « Annuler » au formulaire d'ajout, qui revient à la page précédente
-6. **Optionnel** : stockez la recherche et la catégorie choisie dans les paramètres de requête avec `useSearchParams` au lieu de l'état de `App` ; vérifiez qu'un rechargement conserve les filtres
+4. Après l'ajout d'une recette, naviguez vers la page de détail de la nouvelle recette (`addRecipe` dans `App` doit alors retourner l'id créé, et le type de `onAdd` devient `(recipe: NewRecipe) => number`)
+5. Ajoutez un bouton « Annuler » à la page d'ajout, qui revient à la page précédente
+6. **Optionnel** : stockez la recherche et la catégorie choisie dans les paramètres de requête avec `useSearchParams` au lieu de l'état de `App` ; vérifiez qu'un rechargement conserve les filtres. 
+    - ⚠️ `setSearchParams` remplace **tous** les paramètres, il faut donc inclure la catégorie si on change la recherche, et vice versa.

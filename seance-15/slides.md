@@ -78,7 +78,7 @@ autre chose     →  NotFoundPage
 
 <br>
 
-> ⚠️ Au chargement de la page, le navigateur effectue une requête au serveur de fichier. 
+> ⚠️ Au chargement de la page (ou à un rechargement), le navigateur envoie l'URL complète au serveur de fichiers.
 > Avec le routage côté client, le serveur doit renvoyer `index.html` pour **toutes** les URLs de l'application.
 > Le serveur de développement de Vite le fait automatiquement, mais un serveur de production doit être configuré pour le faire aussi.
 
@@ -92,8 +92,10 @@ Bibliothèque de routage la plus utilisée avec React.
 npm install react-router
 ```
 
-- Depuis la version 7, tout s'importe depuis `"react-router"`
-- Beaucoup d'exemples en ligne importent depuis `"react-router-dom"` : c'était le nom du paquet jusqu'à la version 6, l'API est la même pour ce que nous utilisons
+- Tout s'importe depuis `"react-router"`
+- Beaucoup d'exemples en ligne importent depuis `"react-router-dom"` : c'était le paquet à utiliser jusqu'à la version 6, gardé comme simple alias en version 7, et **supprimé** en version 8
+  - `npm install react-router-dom` installe une ancienne version : ne pas l'utiliser
+  - Les noms des composants et des hooks n'ont pas changé : il suffit de remplacer `"react-router-dom"` par `"react-router"` dans les imports
 - React Router peut aussi servir de framework complet (chargement de données, rendu serveur) : nous n'utilisons que le routage (*declarative mode*)
 
 ---
@@ -315,6 +317,7 @@ const App = () => {
 - **Link / NavLink** — Navigation sans rechargement ; classe `active` et `end` pour NavLink
 - **Routes imbriquées + Outlet** — Layout commun, la page s'affiche dans l'`Outlet`
 - **index et `*`** — Route par défaut du parent, page 404
+- **État partagé** — Dans `App`, qui ne disparaît jamais, et passé aux pages en props via `element`
 
 **Prochaine séance** : Séance 16 — React Router hooks
 
@@ -324,7 +327,7 @@ const App = () => {
 
 1. Installez React Router
 2. Créez un dossier `src/pages` avec `HomePage` (recherche, filtres et liste), `AddRecipePage` (formulaire), `RecipeDetailPage` et `NotFoundPage`
-3. Transformez `PageLayout` en composant `Layout` pour une route parente : `AppBar` avec des `NavLink` « Recettes » et « Ajouter une recette », le nombre de favoris, et un `Outlet`
+3. Transformez `PageLayout` en composant `Layout` pour une route parente : `AppBar` avec des `NavLink` « Recettes » et « Ajouter une recette », le nombre de favoris (reçu en prop depuis `App`), et un `Outlet` à la place de `children`
 4. Déclarez les routes dans `App` : `/`, `/recipes/new`, `/recipes/:id` et la page 404 ; l'état reste dans `App` et est passé aux pages en props
 5. Dans `RecipeCard`, ajoutez un bouton « Voir la recette » qui mène à `/recipes/:id`
 6. Pour l'instant, `RecipeDetailPage` affiche `RecipeDetail` avec la **première** recette : on lira l'id de l'URL en séance 16
