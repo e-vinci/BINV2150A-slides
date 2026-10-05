@@ -230,7 +230,7 @@ const HomePage = ({ recipes }: HomePageProps) => {
 - **useLocation** — `pathname`, `search`, `hash` de l'URL actuelle
 - **useSearchParams** — Paramètres de requête comme source de vérité (filtres partageables)
 
-**Prochaine séance** : Séance 17 — React Context
+**Prochaine séance** : Séance 17 — useEffect et stockage web
 
 ---
 

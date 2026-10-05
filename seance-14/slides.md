@@ -362,7 +362,7 @@ App (état : user)
 
 - On parle de **prop drilling**
 - Supportable sur 2 ou 3 niveaux, pénible au-delà : chaque composant intermédiaire doit déclarer et transmettre la prop
-- Solution en séance 17 : **React Context**
+- Dans MiamMiam, la cascade reste courte : les props suffisent. Pour les arbres profonds, React propose le **Context** (séance complémentaire)
 
 ---
 
