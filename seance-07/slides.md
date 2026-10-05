@@ -61,20 +61,25 @@ npm create vite@latest frontend -- --template react-ts --no-eslint
 
 # Structure du projet
 
-```
+```{|2-8,11-12,18}
 frontend/
+├── public/               # Fichiers servis tels quels (favicon)
 ├── src/
-│   ├── main.tsx          # Point d'entrée javascript, monte le composant App à l'élément #root
+│   ├── assets/           # Images importées par le code
 │   ├── App.tsx           # Composant racine de React
 │   ├── App.css           # Styles du composant App
 │   ├── index.css         # Styles globaux
-│   └── assets/           # Images importées par le code
-├── public/               # Fichiers servis tels quels (favicon)
-├── index.html            # HTML root, contient <div id="root"></div> pour React
-├── vite.config.ts        # Config Vite, rien à modifier pour l'instant
-├── tsconfig.json         # Config TypeScript
+│   └── main.tsx          # Point d'entrée javascript, monte le composant App à l'élément #root
+├── .gitignore            # Fichiers ignorés par Git
 ├── .oxlintrc.json        # Config du linter
-└── package.json          # Dépendances et scripts
+├── index.html            # HTML root, contient <div id="root"></div> pour React
+├── package.json          # Dépendances et scripts
+├── package-lock.json     # Versions exactes des dépendances
+├── README.md             # Documentation du projet
+├── tsconfig.app.json     # Config TypeScript pour le code React
+├── tsconfig.json         # Config TypeScript, séparé en deux sous-fichiers
+├── tsconfig.node.json    # Config TypeScript pour le code Node.js
+└── vite.config.ts        # Config Vite, rien à modifier pour l'instant
 ```
 
 ---
@@ -99,21 +104,17 @@ frontend/
 Fichiers `.tsx` = TypeScript + JSX. Permet d'écrire du HTML-like dans le code TypeScript.
 
 ```tsx
-const element = <h1>Bienvenue!</h1>;
+const element: JSX.Element = <h1>Bienvenue!</h1>;
 
 // Avec des variables
 const title = "Recettes";
 const greeting = <h2>{title}</h2>;
 
 // Avec des fonctions
-function formatDuration(minutes: number): string {
-  return `${minutes} minutes`;
-}
-const duration = 1; // en heures
+
 const info = <p>Durée: {formatDuration(duration * 60)}</p>;
 
 // Avec des conditions (ternaires)
-const difficulty = "facile";
 const badge = (
   <span>
     {difficulty === "facile" ? "✅" : "⚠️"}
@@ -136,6 +137,7 @@ const badge = (
 ---
 
 # Composants React
+##
 
 Un composant React est une fonction TypeScript qui retourne du JSX
 
@@ -164,6 +166,7 @@ const RecipeCard = () => {
 # Exemple: RecipeCard
 
 ```tsx
+// RecipeCard.tsx
 const RecipeCard = () => {
   return (
     <div className="recipe-card">
@@ -240,8 +243,10 @@ createRoot(document.getElementById("root")!).render(
 
 ```tsx
 // App.tsx
+
 const Header = () => <header>MiamMiam</header>;
 const Footer = () => <footer>© 2026</footer>;
+
 const App = () => (
   <div>
     <Header />
@@ -249,6 +254,7 @@ const App = () => (
     <Footer />
   </div>
 );
+
 export default App;
 ```
 
