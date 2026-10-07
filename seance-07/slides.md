@@ -129,6 +129,7 @@ const badge = (
 - `className` au lieu de `class` (mot-clé réservé JS)
 - `htmlFor` au lieu de `for` (mot-clé réservé JS)
 - Expressions JavaScript entre `{}`
+- Le texte inséré avec `{}` est **échappé** : `{"<img src=x onerror=...>"}` s'affiche tel quel, comme avec `textContent` &rarr; React protège ainsi contre les attaques XSS (séance 05)
 - `style` reçoit un objet, pas une chaîne : `style={{ width: "200px" }}`
 - Tags auto-fermants obligatoires : `<img />`, `<input />`, `<br />`
 - Une expression JSX a **un seul élément racine** : envelopper dans un `<div>` ou un fragment `<>...</>`
