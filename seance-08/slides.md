@@ -115,8 +115,6 @@ const RecipeCard = (props: RecipeCardProps) => {
 
 # Destructuring des props
 
-Le destructuring de paramètres (séance 01) évite de répéter `props.` partout.
-
 ```tsx
 // ❌ Avant : props.xxx à chaque utilisation
 const RecipeCard = (props: RecipeCardProps) => {
@@ -250,6 +248,7 @@ const RecipeCard = ({ title }: RecipeCardProps) => {
 ---
 
 # children : le contenu entre les balises
+##
 
 Tout ce qui est écrit **entre** la balise ouvrante et la balise fermante d'un composant est reçu dans une prop spéciale : `children`.
 
@@ -306,6 +305,7 @@ const App = () => (
 ---
 
 # Composition de composants
+##
 
 Une application React est un **arbre de composants** : chaque composant en utilise d'autres.
 
