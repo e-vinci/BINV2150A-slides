@@ -60,7 +60,7 @@ Deux étapes, donc deux `await` :
 1. `fetch(url)` : se résout dès que les **en-têtes** de la réponse sont reçus &rarr; un objet `Response`
 2. `response.json()` : lit le **corps** de la réponse (qui peut être long à arriver) et le parse en JSON
 
-Sans option, `fetch` envoie une requête `GET` sans en-têtes ni corps ou paramètres.
+Sans deuxième argument, `fetch` envoie une requête `GET`, sans corps.
 
 ---
 
@@ -181,9 +181,52 @@ useEffect(() => {
 - L'effet envoie la requête, la réponse arrive plus tard
 - `setRecipes` provoque un nouveau rendu avec les recettes
 - La fonction passée à `useEffect` ne peut pas être `async`
-  - On utilise `.then` ou une fonction `async` déclarée dans l'effet
+  - Le résultat de la callback de `useEffect` est soit une fonction **cleanup** soit rien
+  - Une fonction `async` retourne toujours une Promise (même void) &rarr; React lèverait une erreur
+
+---
+layout: two-cols-header
+layoutClass: gap-x-8
+class: min-w-0
+---
+
+# Do's and Don'ts : useEffect et async
+
+::left::
 
 ```tsx
+// ❌ callback async directement
+useEffect(async () => { 
+  const data = await getRecipes();
+  setRecipes(data);
+}, []);
+
+// Erreur : Argument of type '() => Promise<void>' is
+// not assignable to parameter of type 'EffectCallback' 
+```
+
+<br>
+
+```tsx
+// ❌ fonction déclarée à côté de l'effet
+const loadRecipes = async () => {
+  const data = await getRecipes();
+  setRecipes(data);
+};
+
+useEffect(() => {
+  loadRecipes();
+}, []); 
+
+// Erreur : React Hook useEffect has a missing 
+// dependency: 'loadRecipes'. Either include it 
+// or remove the dependency array.
+```
+
+::right::
+
+```tsx
+// ✅ fonction async à l'intérieur de l'effet
 useEffect(() => {
   const loadRecipes = async () => {
     const data = await getRecipes();
@@ -193,9 +236,19 @@ useEffect(() => {
 }, []);
 ```
 
+<br>
+
+```tsx
+// ✅ fonction sans async avec `.then`
+useEffect(() => {
+  getRecipes().then((data) => setRecipes(data));
+}, []);
+```
+
 ---
 
 # Trois états : chargement, erreur, données
+##
 
 Une requête peut être **en cours**, **échouée** ou **réussie** : l'affichage doit prévoir les trois cas.
 
@@ -223,35 +276,6 @@ return <RecipeList recipes={recipes} />;
 
 ---
 
-# Requêtes concurrentes
-##
-
-Sur la page de détail, l'id change quand on navigue de la recette 3 à la recette 5 :
-
-```
-Requête GET /recipes/3 envoyée
-Navigation vers /recipes/5
-Requête GET /recipes/5 envoyée
-Réponse de /recipes/5 reçue   → affiche la recette 5
-Réponse de /recipes/3 reçue   → affiche la recette 3 ! (réponse plus lente)
-```
-
-Le nettoyage de l'effet (séance 18) permet d'**ignorer** une réponse devenue inutile :
-
-```tsx
-useEffect(() => {
-  let ignore = false;
-  getRecipe(recipeId).then((data) => {
-    if (!ignore) setRecipe(data);
-  });
-  return () => {
-    ignore = true; // l'id a changé ou la page a été quittée
-  };
-}, [recipeId]);
-```
-
----
-
 # Le hook useRecipes
 ##
 
@@ -265,14 +289,10 @@ export const useRecipes = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let ignore = false;
     getRecipes()
-      .then((data) => { if (!ignore) setRecipes(data); })
-      .catch((err: unknown) => {
-        if (!ignore) setError(err instanceof Error ? err.message : "Erreur inconnue");
-      })
-      .finally(() => { if (!ignore) setLoading(false); });
-    return () => { ignore = true; };
+      .then((data) => setRecipes(data))
+      .catch((err: unknown) => setError(err instanceof Error ? err.message : "Erreur inconnue"))
+      .finally(() => setLoading(false));
   }, []);
 
   // addRecipe et deleteRecipe modifient encore uniquement l'état local
@@ -306,7 +326,6 @@ Onglet **Réseau** (*Network*) des outils de développement :
 - **Services** — Les appels HTTP regroupés dans `services/`, partie Model de MVVM
 - **Effet** — Chargement des données dans `useEffect`, jamais pendant le rendu
 - **Trois états** — `loading`, `error`, données
-- **Réponses obsolètes** — Drapeau `ignore` mis à jour par le nettoyage de l'effet
 
 **Prochaine séance** : Séance 22 — CORS et proxy
 
@@ -319,5 +338,34 @@ Onglet **Réseau** (*Network*) des outils de développement :
 3. Modifiez `useRecipes` pour charger les recettes depuis l'API ; supprimez `data/recipes.ts`
 4. Créez un hook `useCategories` sur le même modèle ; supprimez `data/categories.ts`
 5. Affichez un `CircularProgress` pendant le chargement et une `Alert` en cas d'erreur ; testez en arrêtant JSON Server et avec le *throttling* du navigateur
-6. La page de détail charge sa recette avec `getRecipe` (et le drapeau `ignore`) ; en cas d'erreur (testez `/recipes/999`), elle affiche « Recette introuvable »
+6. La page de détail charge sa recette avec `getRecipe` ; en cas d'erreur (testez `/recipes/999`), elle affiche « Recette introuvable »
 7. **Optionnel** : ajoutez `createRecipe` et utilisez-le dans `addRecipe` ; vérifiez dans `db.json` que la recette a été enregistrée
+
+---
+
+# Pour aller plus loin : requêtes concurrentes
+##
+
+Sur la page de détail, l'id change quand on navigue de la recette 3 à la recette 5 :
+
+```
+Requête GET /recipes/3 envoyée
+Navigation vers /recipes/5
+Requête GET /recipes/5 envoyée
+Réponse de /recipes/5 reçue   → affiche la recette 5
+Réponse de /recipes/3 reçue   → affiche la recette 3 ! (réponse plus lente)
+```
+
+Situation rare, mais possible. Le nettoyage de l'effet (séance 18) permet d'**ignorer** une réponse devenue inutile :
+
+```tsx
+useEffect(() => {
+  let ignore = false;
+  getRecipe(recipeId).then((data) => {
+    if (!ignore) setRecipe(data);
+  });
+  return () => {
+    ignore = true; // l'id a changé ou la page a été quittée
+  };
+}, [recipeId]);
+```

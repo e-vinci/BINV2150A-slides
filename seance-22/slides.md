@@ -64,8 +64,8 @@ Règle de sécurité appliquée par tous les navigateurs :
 Pourquoi ? Le navigateur envoie automatiquement les cookies d'un site avec chaque requête vers ce site.
 
 - Vous êtes connecté à votre banque dans un onglet
-- Un site malveillant, dans un autre onglet, exécute `fetch("https://ma-banque.be/comptes")`
-- Le navigateur joint vos cookies de la banque à la requête
+- Un site malveillant, dans un autre onglet, exécute `fetch("https://ma-banque.be/comptes", { credentials: "include" })`
+- Avec l'option `credentials: "include"`, le navigateur joint vos cookies de la banque à la requête
 - Sans la same-origin policy, le script malveillant pourrait lire vos comptes
 
 La règle protège **l'utilisateur du navigateur**, pas le serveur : REST Client, curl ou un autre serveur ne sont pas concernés.
@@ -93,6 +93,7 @@ Access-Control-Allow-Origin: http://localhost:5173
 ---
 
 # Requêtes préliminaires (preflight)
+##
 
 Pour une requête « non simple », le navigateur demande d'abord la permission avec une requête `OPTIONS`.
 
@@ -111,7 +112,7 @@ Access-Control-Request-Headers: content-type, Access-Control-Allow-Headers: Cont
 ```
 
 - Si la réponse n'autorise pas la requête, la vraie requête n'est **jamais envoyée**
-- Toutes les requêtes d'écriture de MiamMiam (JSON + token) sont précédées d'un preflight
+- En cross-origin, toutes les requêtes d'écriture de MiamMiam (JSON, token) et `GET /auth/me` (token) seraient précédées d'un preflight
 
 ---
 
@@ -145,6 +146,7 @@ app.use((req, res, next) => {
 
 ```bash
 npm install cors
+npm install -D @types/cors   # le paquet cors ne contient pas ses types TypeScript
 ```
 
 ```ts
@@ -295,7 +297,7 @@ Dans ce cours, on utilise le proxy de Vite, et le backend reste inchangé.
 Dans l'onglet Réseau :
 
 - Requête en rouge avec la mention *CORS error* : la réponse a été bloquée par le navigateur
-- Requête `OPTIONS` en échec (souvent 404 : aucune route `OPTIONS` dans Express) : le preflight a été refusé, la vraie requête n'est pas partie
+- Requête `OPTIONS` (preflight) en échec : Express y répond automatiquement (`200` avec un en-tête `Allow`), mais sans en-têtes CORS ; le navigateur refuse, la vraie requête n'est pas partie
 - Réponse sans en-tête `Access-Control-Allow-Origin` : le serveur n'a pas configuré CORS
 
 ---
@@ -307,7 +309,7 @@ Dans l'onglet Réseau :
 - **Protège l'utilisateur** — Les outils comme REST Client ne sont pas concernés
 - **CORS** — Le serveur autorise des origines avec `Access-Control-Allow-Origin`
 - **Preflight** — Requête `OPTIONS` avant les requêtes non simples (JSON, `Authorization`, `PUT`, `DELETE`)
-- **Solution backend** — Middleware CORS, comme dans le projet Web 1
+- **Solution backend** — Middleware CORS (écrit à la main ou paquet `cors`)
 - **Proxy Vite** — Même origine en développement, `/api` transmis au backend avec `rewrite`
 - **Production** — Même origine via un serveur, ou CORS configuré pour l'origine du frontend
 
@@ -320,6 +322,6 @@ Dans l'onglet Réseau :
 1. Lancez le backend MiamMiam (`npm run demo:reset`, puis `npm run dev`) et remplacez l'URL de l'API par `http://localhost:3000` : observez l'erreur CORS dans la console, l'onglet Réseau et le terminal du backend
 2. Configurez le proxy de Vite pour `/api` et utilisez `API_URL = "/api"` dans les services
 3. Vérifiez que la liste, le détail et les catégories fonctionnent avec les données du backend
-4. Utilisez les filtres du backend : `getRecipes` accepte un objet de filtres (`search`, `categoryId`) et les ajoute en paramètres de requête avec `URLSearchParams` ; la recherche et le filtre par catégorie de `HomePage` passent par le serveur
-5. Tentez de créer une recette avec un `POST` vers `/api/recipes` : quel statut obtenez-vous, et pourquoi ?
+4. Tentez de créer une recette avec un `POST` vers `/api/recipes` : quel statut obtenez-vous, et pourquoi ?
+5. **Optionnel** : Utilisez les filtres du backend : `getRecipes` accepte un objet de filtres (`search`, `categoryId`) et les ajoute en paramètres de requête &rarr; La recherche et le filtre par catégorie de `HomePage` passent par le serveur
 6. **Optionnel** : dans une copie du backend, ajoutez le middleware CORS, retirez le proxy et comparez les requêtes dans l'onglet Réseau (preflight `OPTIONS`)

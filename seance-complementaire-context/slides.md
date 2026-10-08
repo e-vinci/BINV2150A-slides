@@ -30,9 +30,10 @@ Depuis la séance 23, `App` appelle `useAuth` et transmet la session en props :
 
 ```
 App (useAuth)
-├── Layout                  user, loading, onLogout ← les transmet
-│   └── UserMenu            user, onLogout ← les utilise
-├── RequireAuth             user, loading ← les utilise
+├── Layout                  user, isLoggedIn, onLogout ← les transmet
+│   └── UserMenu            user, isLoggedIn, onLogout ← les utilise
+├── LoginPage               onLogin ← l'utilise
+├── AddRecipePage           isLoggedIn ← l'utilise
 └── RecipeDetailPage        user ← le transmet
     └── RecipeActions       user ← l'utilise (auteur de la recette ?)
 ```
@@ -50,11 +51,12 @@ App (useAuth)
 Un **Context** permet à un composant de fournir une valeur à **tous ses descendants**, sans la passer en props.
 
 ```
-AuthProvider (fournit : user, loading, login, logout, authFetch…)
+AuthProvider (fournit : token, user, login, logout)
 └── App
     ├── Layout
     │   └── UserMenu            lit le contexte directement
-    ├── RequireAuth             lit le contexte directement
+    ├── LoginPage               lit le contexte directement
+    ├── AddRecipePage           lit le contexte directement
     └── RecipeDetailPage
         └── RecipeActions       lit le contexte directement
 ```
@@ -80,14 +82,15 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 ```
 
 - `createContext` crée un objet contexte, qui servira de **clé** pour fournir et lire la valeur
-- `AuthContextType` : le type de ce que retourne `useAuth` (`user`, `token`, `loading`, `login`…)
+- `AuthContextType` : le type de ce que retourne `useAuth` (`token`, `user`, `login`, `logout`)
   - `typeof useAuth` : le type de la fonction
-  - `ReturnType<...>` : type utilitaire de TypeScript, comme `Omit` (séance 14), qui extrait le type de retour d'une fonction
-- `undefined` : valeur par défaut, lue seulement par un composant **sans** fournisseur au-dessus de lui (une erreur de notre part)
+  - `ReturnType<...>` : type utilitaire de TypeScript, qui extrait le type de retour d'une fonction
+- `undefined` : valeur par défaut, lue seulement par un composant **sans** fournisseur au-dessus de lui
 
 ---
 
 # 2. Fournir une valeur
+##
 
 Le contexte ne **stocke** rien : il transmet. La valeur vient d'un composant fournisseur, qui appelle `useAuth`.
 
@@ -130,10 +133,10 @@ export const useAuthContext = () => {
 ```tsx
 // Plus aucune prop : UserMenu lit la session lui-même
 const UserMenu = () => {
-  const { user, logout } = useAuthContext();
+  const { token, user, logout } = useAuthContext();
 
-  if (!user) return <Button component={Link} to="/login" color="inherit">Connexion</Button>;
-  return <Button onClick={logout} color="inherit">Déconnexion ({user.firstName})</Button>;
+  if (!token) return <Button component={NavLink} to="/login" color="inherit">Connexion</Button>;
+  return <Button onClick={logout} color="inherit">Déconnexion {user?.firstName}</Button>;
 };
 ```
 
@@ -160,8 +163,8 @@ createRoot(document.getElementById("root")!).render(
 ```tsx
 // App.tsx
 const App = () => {
-  const { user, refreshUser, authFetch } = useAuthContext();
-  const { recipes, addRecipe, deleteRecipe } = useRecipes(authFetch);
+  const { token } = useAuthContext();
+  const { recipes, addRecipe, deleteRecipe } = useRecipes(token);
   // ...
 };
 ```
@@ -174,25 +177,24 @@ const App = () => {
 
 ```tsx
 // Avant (séance 23) : la session descend en props
-<Route path="/" element={<Layout user={auth.user} loading={auth.loading} onLogout={auth.logout} />}>
+<Route path="/" element={<Layout user={auth.user} isLoggedIn={isLoggedIn} onLogout={auth.logout} />}>
   <Route path="login" element={<LoginPage onLogin={auth.login} />} />
-  <Route element={<RequireAuth user={auth.user} loading={auth.loading} />}>
-    {/* ... */}
-  </Route>
+  <Route path="recipes/new" element={<AddRecipePage isLoggedIn={isLoggedIn} onAdd={addRecipe} />} />
 </Route>
 
 // Après : chaque composant lit le contexte
 <Route path="/" element={<Layout />}>
   <Route path="login" element={<LoginPage />} />
-  <Route element={<RequireAuth />}>
-    {/* ... */}
-  </Route>
+  <Route path="recipes/new" element={<AddRecipePage onAdd={addRecipe} />} />
 </Route>
 ```
 
 ```tsx
-const RequireAuth = () => {
-  const { user, loading } = useAuthContext();
+const AddRecipePage = ({ onAdd }: AddRecipePageProps) => {
+  const { token } = useAuthContext();
+  const navigate = useNavigate();
+
+  if (!token) return <Navigate to="/login" replace />;
   // ... identique à la séance 23
 };
 ```
@@ -267,8 +269,8 @@ Un contexte par **sujet** (authentification, thème…) plutôt qu'un contexte g
 
 1. Créez `AuthContext`, `AuthProvider` et `useAuthContext` ; `AuthProvider` est le seul composant qui appelle `useAuth`
 2. Placez `AuthProvider` dans `main.tsx`, autour d'`App`
-3. Supprimez les props d'authentification de `Layout`, `UserMenu`, `LoginPage`, `RequireAuth` et `RecipeDetailPage` : chacun lit le contexte
-4. Vérifiez que tout fonctionne comme avant : connexion, restauration de la session au rechargement, routes protégées, déconnexion
+3. Supprimez les props d'authentification de `Layout`, `LoginPage`, `AddRecipePage` et `RecipeDetailPage` : chacun lit le contexte
+4. Vérifiez que tout fonctionne comme avant : connexion, session conservée au rechargement, page d'ajout protégée, déconnexion
 5. Comparez les deux versions : quels fichiers sont plus simples ? Lesquels sont plus difficiles à comprendre ?
 
 ---

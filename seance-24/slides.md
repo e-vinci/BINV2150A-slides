@@ -27,7 +27,7 @@ Les routes suivantes du backend sont protégées et exigent une authentification
 # Envoyer le token
 ##
 
-Le backend attend le token **tel quel** dans l'en-tête `Authorization` :
+Le backend attend le token **tel quel** dans l'en-tête `Authorization`, comme dans les fichiers `.http` de REST Client (séance 03) :
 
 ```ts
 await fetch("/api/recipes/3", {
@@ -36,131 +36,70 @@ await fetch("/api/recipes/3", {
 });
 ```
 
-Répéter ces lignes dans chaque service multiplie les oublis et les incohérences : on centralise.
+Rien d'autre ne change par rapport à la séance 21 : `fetch`, vérification de `response.ok`, lecture du corps.
+
+Une seule question : **d'où vient le token ?** Il est dans `useAuth` (séance 23), appelé dans `App`. Il faut donc le transmettre jusqu'aux services.
 
 ---
 
-# Une fonction centrale : apiFetch
-
-```ts
-// services/api.ts
-const API_URL = "/api";
-
-export class ApiError extends Error {
-  status: number;
-  constructor(status: number, message: string) {
-    super(message);
-    this.status = status;
-  }
-}
-
-export const apiFetch = async <T>(path: string, options: RequestInit = {}, token?: string | null): Promise<T> => {
-  const headers = new Headers(options.headers);
-  if (options.body) headers.set("Content-Type", "application/json");
-  if (token) headers.set("Authorization", token);
-
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
-
-  if (!response.ok) throw new ApiError(response.status, `Erreur HTTP ${response.status}`);
-  if (response.status === 204) return undefined as T; // pas de corps à lire
-
-  const data = await response.json();
-  return data as T;
-};
-```
-
-
-
----
-
-# Des services plus simples
+# Un service avec token
+##
 
 ```ts
 // services/recipes.service.ts
-import { apiFetch } from "./api";
-import type { NewRecipe, Recipe } from "../models/recipe";
-
-export const getRecipes = () => apiFetch<Recipe[]>("/recipes");
-
-export const createRecipe = (recipe: NewRecipe, token: string) =>
-  apiFetch<Recipe>("/recipes", { method: "POST", body: JSON.stringify(recipe) }, token);
-
-export const updateRecipe = (id: number, recipe: NewRecipe, token: string) =>
-  apiFetch<void>(`/recipes/${id}`, { method: "PUT", body: JSON.stringify(recipe) }, token);
-
-export const deleteRecipe = (id: number, token: string) =>
-  apiFetch<void>(`/recipes/${id}`, { method: "DELETE" }, token);
-```
-
-- Une ligne par route de l'API, qui se lit comme la documentation
-- Le service ne sait pas **d'où** vient le token : il le reçoit en paramètre
-
----
-
-# Réagir à un token expiré
-##
-
-Un token peut expirer **pendant** l'utilisation de l'application : la requête suivante reçoit `401`.
-
-Réaction attendue, pour **toutes** les requêtes authentifiées :
-
-1. Oublier le token et l'utilisateur (`logout`)
-2. Ramener l'utilisateur à la page de connexion
-
-Le 2e point est **automatique** : les routes protégées par `RequireAuth` (séance 23) affichent `Navigate` dès que `user` devient `null`. L'interface découle de l'état.
-
-Pour centraliser le 1er point, la fonction qui envoie les requêtes doit connaître le `token` **et** pouvoir appeler `logout` : les deux se trouvent dans `useAuth`. On y ajoute donc une fonction `authFetch`.
-
----
-
-# authFetch : requêtes authentifiées
-
-```ts
-// hooks/useAuth.ts (suite)
-const authFetch = async <T>(path: string, options: RequestInit = {}): Promise<T> => {
-  try {
-    return await apiFetch<T>(path, options, token);
-  } catch (err) {
-    if (err instanceof ApiError && err.status === 401) {
-      logout(); // session expirée : RequireAuth redirige vers /login
-    }
-    throw err; // l'appelant affiche un message adapté
-  }
+export const createRecipe = async (recipe: NewRecipe, token: string): Promise<Recipe> => {
+  const response = await fetch(`${API_URL}/recipes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: token },
+    body: JSON.stringify(recipe),
+  });
+  if (response.status === 400) throw new Error("La recette est invalide");
+  if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+  const data = await response.json();
+  return data as Recipe; // la recette créée, avec son id et son auteur
 };
 
-return { user, token, loading, login, register, logout, authFetch };
-```
-
-- `authFetch` est créée dans le hook : elle voit le `token` courant et peut appeler `logout`
-- L'appelant n'a plus à passer le token : `authFetch<Recipe>("/recipes", { method: "POST", ... })`
-- C'est l'équivalent d'un **intercepteur** : un traitement commun à toutes les réponses
-
-```ts
-// types.ts  ->  type de la fonction authFetch, pour pouvoir la passer en paramètre à d'autres hooks
-export type AuthFetch = <T>(path: string, options?: RequestInit) => Promise<T>;
+export const deleteRecipe = async (id: number, token: string): Promise<void> => {
+  const response = await fetch(`${API_URL}/recipes/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: token },
+  });
+  if (response.status === 403) throw new Error("Vous n'êtes pas l'auteur de cette recette");
+  if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+  // 204 : pas de corps, rien à lire (response.json() lèverait une erreur)
+};
 ```
 
 ---
 
-# Tout se branche dans App
+# Le token dans useRecipes
+##
 
-```tsx
-const App = () => {
-  const auth = useAuth();
-  const { recipes, addRecipe, deleteRecipe } = useRecipes(auth.authFetch);
-  const { isFavorite, toggleFavorite } = useFavorites(auth.user, auth.refreshUser, auth.authFetch);
+`App` passe le token au hook, comme une prop à un composant :
 
-  return (
-    <BrowserRouter>
-      <Routes>{/* routes de la séance 23 */}</Routes>
-    </BrowserRouter>
-  );
+```ts
+// App.tsx
+const auth = useAuth();
+const { recipes, addRecipe, deleteRecipe } = useRecipes(auth.token);
+```
+
+```ts
+// hooks/useRecipes.ts
+export const useRecipes = (token: string | null) => {
+  // ... état et chargement de la séance 21 (GET /recipes ne demande pas de token)
+
+  const addRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
+    if (!token) throw new Error("Vous devez être connecté");
+    const created = await recipesService.createRecipe(newRecipe, token);
+    setRecipes((prev) => [...prev, created]);
+    return created;
+  };
+  // ...
 };
 ```
 
 - Un hook personnalisé peut recevoir des **paramètres**, comme toute fonction
-- `useRecipes` ne sait pas d'où vient `authFetch`, comme le service ne savait pas d'où venait le token
-- Chaque hook est appelé **une seule fois**, dans `App` (séance 19) ; les pages reçoivent données et actions en props, et ne voient jamais le token
+- `addRecipe` est maintenant **asynchrone** : la page attend la réponse du serveur
 
 ---
 
@@ -172,8 +111,9 @@ Deux stratégies pour une action de l'utilisateur (supprimer une recette) :
 **Pessimiste** : attendre la confirmation du serveur, puis modifier l'état
 
 ```ts
-const removeRecipe = async (id: number) => {
-  await authFetch<void>(`/recipes/${id}`, { method: "DELETE" }); // lève une erreur si refusé
+const deleteRecipe = async (id: number) => {
+  if (!token) throw new Error("Vous devez être connecté");
+  await recipesService.deleteRecipe(id, token); // lève une erreur si refusé
   setRecipes((prev) => prev.filter((r) => r.id !== id));
 };
 ```
@@ -187,64 +127,55 @@ Dans ce cours : stratégie **pessimiste**. L'état local reflète toujours ce qu
 ---
 
 # Exemple : créer une recette
-
-```ts
-// hooks/useRecipes.ts
-export const useRecipes = (authFetch: AuthFetch) => {
-  // ...
-  const addRecipe = async (newRecipe: NewRecipe): Promise<Recipe> => {
-    const created = await authFetch<Recipe>("/recipes", {
-      method: "POST",
-      body: JSON.stringify(newRecipe),
-    });
-    setRecipes((prev) => [...prev, created]); // la recette avec l'id et l'auteur du backend
-    return created;
-  };
-  // ...
-};
-```
+##
 
 ```tsx
 // pages/AddRecipePage.tsx
+const [error, setError] = useState<string | null>(null);
+
 const handleAdd = async (newRecipe: NewRecipe) => {
   try {
-    const created = await addRecipe(newRecipe);
+    const created = await onAdd(newRecipe); // addRecipe de useRecipes
     navigate(`/recipes/${created.id}`);
   } catch (err) {
-    setError(err instanceof ApiError && err.status === 400
-      ? "La recette est invalide"
-      : "Impossible d'enregistrer la recette");
+    setError(err instanceof Error ? err.message : "Impossible d'enregistrer la recette");
   }
 };
 ```
+
+- L'`id` et l'`authorId` viennent maintenant du **backend** : fini `Date.now()` et `authorId: 1`
+- Le message affiché est celui du service (« La recette est invalide »…)
 
 ---
 
 # Exemple : favoris sur le serveur
 ##
 
-En séance 17, les favoris étaient dans le `localStorage` : propres à un navigateur. Le backend les stocke par **utilisateur**.
-
-L'utilisateur renvoyé par `GET /auth/me` contient déjà ses favoris (`user.favorites`) : ils sont **déduits** de `user`, pas copiés dans un nouvel état.
-
 ```ts
 // hooks/useFavorites.ts
-// refreshUser : fonction de useAuth qui redemande GET /auth/me et met à jour user
-export const useFavorites = (user: User | null, refreshUser: () => Promise<void>, authFetch: AuthFetch) => {
-  const favoriteIds = user?.favorites ?? []; // valeur dérivée (séance 14)
+export const useFavorites = (token: string | null) => {
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (!token) return;
+    usersService.getFavorites(token).then((recipes) => setFavoriteIds(recipes.map((r) => r.id)));
+  }, [token]); // rechargés à chaque connexion
 
   const toggleFavorite = async (recipeId: number) => {
-    const method = favoriteIds.includes(recipeId) ? "DELETE" : "PUT";
-    await authFetch<void>(`/users/me/favorites/${recipeId}`, { method });
-    await refreshUser(); // user reçoit la nouvelle liste du serveur
+    if (!token) return;
+    if (favoriteIds.includes(recipeId)) {
+      await usersService.removeFavorite(recipeId, token);
+      setFavoriteIds((prev) => prev.filter((id) => id !== recipeId));
+    } else {
+      await usersService.addFavorite(recipeId, token);
+      setFavoriteIds((prev) => [...prev, recipeId]);
+    }
   };
 
-  return { favoriteIds, toggleFavorite, isFavorite: (id: number) => favoriteIds.includes(id) };
+  const isFavorite = (recipeId: number) => token !== null && favoriteIds.includes(recipeId);
+  return { favoriteIds, toggleFavorite, isFavorite };
 };
 ```
-
-- Une seule source de vérité : `user` de `useAuth`, lui-même synchronisé avec le serveur
-- Grâce à MVVM (séance 19), les composants qui utilisent `useFavorites` ne changent pas
 
 ---
 
@@ -253,19 +184,17 @@ export const useFavorites = (user: User | null, refreshUser: () => Promise<void>
 ```mermaid
 flowchart LR
   P["pages et components<br/>(View)"]
-  H["useRecipes, useFavorites<br/>(ViewModel)"]
-  AF["useAuth : session et authFetch<br/>token + gestion du 401"]
-  S["services : apiFetch, recipes, auth<br/>(Model)"]
+  H["useAuth, useRecipes, useFavorites<br/>(ViewModel)"]
+  S["services : auth, recipes, users<br/>(Model)"]
   V["proxy Vite /api"]
   B["backend Express<br/>vérification JWT, autorisations"]
   P --> H
-  H --> AF
-  AF --> S
   H --> S
   S --> V
   V --> B
 ```
 
+- `App` appelle chaque hook une fois et transmet le token de `useAuth` aux autres hooks
 - Chaque couche a une seule responsabilité, comme dans le backend
 - La sécurité est assurée par le **backend** : le frontend masque ce qui est interdit, le backend le refuse
 
@@ -274,11 +203,9 @@ flowchart LR
 # Récapitulatif Séance 24
 
 - **Routes protégées** — `Authorization: <token>` sur chaque requête authentifiée
-- **apiFetch** — Préfixe, en-têtes, `Content-Type`, `204` et erreurs traités en un seul endroit
-- **ApiError** — Erreur qui transporte le statut HTTP
-- **Fonction générique** — `apiFetch<T>` retourne le type demandé par l'appelant
-- **authFetch** — Fonction de `useAuth` qui ajoute le token et réagit au `401`
-- **App** — Appelle chaque hook une fois et passe `authFetch` aux autres hooks
+- **Services** — Reçoivent le token en paramètre ; un message par statut d'erreur attendu
+- **204** — Pas de corps : ne pas appeler `response.json()`
+- **Hooks avec paramètre** — `useRecipes(auth.token)`, `useFavorites(auth.token)`
 - **Mise à jour pessimiste** — L'état local change après la confirmation du serveur
 - **Données du backend** — Id, auteur et favoris viennent du serveur
 
@@ -288,13 +215,13 @@ flowchart LR
 
 # Exercice filé S24
 
-1. Créez `services/api.ts` avec `ApiError` et `apiFetch`, et simplifiez les services existants
-2. Ajoutez `authFetch` à `useAuth` et passez-la en paramètre à `useRecipes`
-3. Ajouter une recette : `POST /recipes`, puis navigation vers la page de la recette créée
-4. Supprimer une recette : `DELETE /recipes/:id` ; affichez un message si le serveur répond `403`
-5. Ajoutez une page `/recipes/:id/edit`, protégée, qui réutilise `RecipeForm` pré-rempli avec la recette et envoie `PUT /recipes/:id`
-6. Ajoutez `refreshUser` à `useAuth` et migrez les favoris vers le serveur ; affichez une page « Mes favoris » (`GET /users/me/favorites`)
-7. Testez l'expiration : modifiez le token dans le `localStorage`, puis ajoutez une recette : vous devez être renvoyé vers la page de connexion
+1. Ajoutez le token aux services des routes protégées (`createRecipe`, `updateRecipe`, `deleteRecipe`), avec un message par statut d'erreur attendu (400, 403, 404)
+2. `useRecipes` reçoit le token ; `addRecipe` et `deleteRecipe` appellent le serveur, puis mettent à jour l'état
+3. Ajouter une recette : `POST /recipes`, puis navigation vers la page de la recette créée ; affichez l'erreur éventuelle (le type de `onAdd` devient `(recipe: NewRecipe) => Promise<Recipe>`)
+4. Supprimer une recette : `DELETE /recipes/:id`, puis retour à la liste ; affichez l'erreur éventuelle
+5. Ajoutez une page `/recipes/:id/edit`, réservée aux utilisateurs connectés, qui réutilise `RecipeForm` pré-rempli avec la recette et envoie `PUT /recipes/:id`
+6. Migrez les favoris vers le serveur : `services/users.service.ts` (`getFavorites`, `addFavorite`, `removeFavorite`) et `useFavorites(token)` ; affichez une page « Mes favoris »
+7. Connectez-vous avec Alice, ajoutez des favoris, puis connectez-vous avec Bob : chacun voit ses propres favoris
 8. **Optionnel** : une page « Mes recettes » (`GET /recipes?authorId=...`)
 
 ---
@@ -306,7 +233,7 @@ flowchart LR
 - **Partie 3 — React** : composants, props, état, formulaires, routage, effets, timers, stockage, architecture MVVM
 - **Partie 4 — Liaison** : fetch, CORS et proxy, session, requêtes authentifiées
 
-**Examen blanc** la semaine prochaine, dans les conditions de l'examen :
+**Examen blanc** la prochaine séance, dans les conditions de l'examen :
 
 - Conception d'un site web complet (front + back) en 2h
 - Accès aux slides

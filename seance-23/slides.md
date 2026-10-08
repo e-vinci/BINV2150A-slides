@@ -64,10 +64,6 @@ Le principe est toujours le même :
 
 ```ts
 // services/auth.service.ts
-import type { User } from "../models/user";
-
-const API_URL = "/api";
-
 export const login = async (email: string, password: string): Promise<string> => {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
@@ -77,7 +73,7 @@ export const login = async (email: string, password: string): Promise<string> =>
   if (response.status === 401) throw new Error("Email ou mot de passe incorrect");
   if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
   const data = await response.json();
-  return data.token!;
+  return data.token as string;
 };
 
 export const getMe = async (token: string): Promise<User> => {
@@ -108,29 +104,9 @@ Choix du cours : `localStorage`, simple et compatible avec l'en-tête `Authoriza
 ---
 
 # Le hook useAuth
+##
 
-Toute la logique de session est rangée dans un **hook personnalisé** (séance 19) :
-
-```ts
-// hooks/useAuth.ts
-export const useAuth = () => {
-  const [token, setToken] = useState<string | null>(/* ... */);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(/* ... */);
-  // ... login, register, logout, restauration de la session
-  return { user, token, loading, login, register, logout };
-};
-```
-
-- `user` : l'utilisateur connecté, tel que le renvoie `GET /auth/me`, ou `null`
-- `token` : nécessaire pour les requêtes authentifiées (séance 24)
-- `loading` : au démarrage, on ne sait pas encore si l'utilisateur est connecté
-- `login` et `register` sont **asynchrones** : la page de connexion attend leur résultat pour naviguer ou afficher une erreur
-- Comme `useRecipes`, `useAuth` est appelé **une seule fois**, dans `App` : un seul état de session pour toute l'application
-
----
-
-# Se connecter
+Toute la session est rangée dans un **hook personnalisé** (séance 19), appelé une seule fois dans `App`.
 
 ```ts
 // hooks/useAuth.ts
@@ -139,14 +115,11 @@ const TOKEN_KEY = "miammiam.token";
 export const useAuth = () => {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(() => localStorage.getItem(TOKEN_KEY) !== null);
 
   const login = async (email: string, password: string) => {
     const newToken = await authService.login(email, password); // lève une erreur si refusé
-    const me = await authService.getMe(newToken);
     localStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
-    setUser(me);
   };
 
   const logout = () => {
@@ -154,36 +127,38 @@ export const useAuth = () => {
     setToken(null);
     setUser(null);
   };
-  // ... restauration de la session (slide suivant)
+
+  // ... chargement de l'utilisateur (slide suivant)
+  return { token, user, login, logout };
 };
 ```
 
 ---
 
-# Restaurer la session au démarrage
+# Charger l'utilisateur
+##
 
-Après un rechargement, le token est dans le `localStorage`, mais `user` est `null`. Il faut redemander l'utilisateur au backend : c'est une **synchronisation** au démarrage, donc un effet.
+Le token ne contient pas le prénom de l'utilisateur : il faut le demander à `GET /auth/me`, chaque fois que le token change.
 
-```tsx
+```ts
+// hooks/useAuth.ts (suite)
 useEffect(() => {
-  const storedToken = localStorage.getItem(TOKEN_KEY);
-  if (!storedToken) return; // loading est déjà false (initialisation du slide précédent)
-  let ignore = false;
+  if (!token) return; // personne n'est connecté
   authService
-    .getMe(storedToken)
-    .then((me) => { if (!ignore) setUser(me); })
+    .getMe(token)
+    .then((me) => setUser(me))
     .catch(() => {
-      if (ignore) return;
-      localStorage.removeItem(TOKEN_KEY); // token expiré ou invalide
+      // token expiré ou invalide : on déconnecte
+      localStorage.removeItem(TOKEN_KEY);
       setToken(null);
-    })
-    .finally(() => { if (!ignore) setLoading(false); });
-  return () => { ignore = true; };
-}, []); // uniquement au démarrage : l'effet ne dépend d'aucune valeur du composant
+    });
+}, [token]);
 ```
 
-- Le backend vérifie la signature et l'expiration : c'est lui qui décide si la session est encore valide
-- `loading` vaut `true` au départ seulement si un token est enregistré : pendant la vérification, on n'affiche pas encore « Connexion »
+- **Au démarrage**, si un token est enregistré : l'utilisateur est chargé s'il est valide, ou il est supprimé
+- **Après `login`**, quand `token` change : l'utilisateur est chargé
+
+C'est le backend qui décide si le token est encore valide (signature, expiration). Ensuite, l'application **suppose** qu'il le reste pendant toute la visite : ce n'est pas parfait (un token peut expirer pendant l'utilisation), mais c'est suffisant ici.
 
 ---
 
@@ -193,17 +168,18 @@ useEffect(() => {
 const App = () => {
   const auth = useAuth();
   const { recipes, addRecipe, deleteRecipe } = useRecipes();
+  const isLoggedIn = auth.token !== null; // valeur dérivée (séance 11)
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout user={auth.user} loading={auth.loading} onLogout={auth.logout} />}>
+        <Route path="/" element={<Layout user={auth.user} isLoggedIn={isLoggedIn} onLogout={auth.logout} />}>
           <Route index element={<HomePage recipes={recipes} />} />
           <Route path="login" element={<LoginPage onLogin={auth.login} />} />
           <Route path="register" element={<RegisterPage onRegister={auth.register} />} />
+          <Route path="recipes/new" element={<AddRecipePage isLoggedIn={isLoggedIn} onAdd={addRecipe} />} />
           <Route path="recipes/:id"
             element={<RecipeDetailPage recipes={recipes} user={auth.user} onDelete={deleteRecipe} />} />
-          {/* recipes/new : route protégée, slide « Protéger des routes » */}
         </Route>
       </Routes>
     </BrowserRouter>
@@ -227,38 +203,38 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitting(true);
-    setError(null);
     try {
       await onLogin(form.email, form.password);
-      navigate("/", { replace: true });
+      navigate("/"); // retour à la liste des recettes
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur inconnue");
-    } finally {
-      setSubmitting(false);
     }
   };
-  // Formulaire : TextField email et password, Alert si error, bouton désactivé si submitting
+  // Formulaire : TextField email et password (séance 12), Alert si error
 };
 ```
+
+- Un handler d'événement peut être `async`, contrairement à la fonction d'un effet
+- Le message d'erreur vient du service : « Email ou mot de passe incorrect » pour un `401`
 
 ---
 
 # Afficher selon l'utilisateur
 
 ```tsx
-const Layout = ({ user, loading, onLogout }: LayoutProps) => (
+const Layout = ({ user, isLoggedIn, onLogout }: LayoutProps) => (
   <>
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>MiamMiam</Typography>
         <Button component={NavLink} to="/" end color="inherit">Recettes</Button>
-        {user && <Button component={NavLink} to="/recipes/new" color="inherit">Ajouter</Button>}
-        {!loading && <UserMenu user={user} onLogout={onLogout} />}
+        {isLoggedIn && <Button component={NavLink} to="/recipes/new" color="inherit">Ajouter</Button>}
+        {isLoggedIn
+          ? <Button onClick={onLogout} color="inherit">Déconnexion {user?.firstName}</Button>
+          : <Button component={NavLink} to="/login" color="inherit">Connexion</Button>}
       </Toolbar>
     </AppBar>
     <Container><Outlet /></Container>
@@ -269,69 +245,38 @@ const Layout = ({ user, loading, onLogout }: LayoutProps) => (
 ```tsx
 // Dans la page de détail : seul l'auteur ou un administrateur peut supprimer, comme dans le backend
 const canDelete = user !== null && (user.id === recipe.authorId || user.role === "admin");
-
 {canDelete && <Button color="error" onClick={handleDelete}>Supprimer</Button>}
 ```
 
-- Masquer un bouton n'est **pas** une sécurité : le backend refuse de toute façon une suppression non autorisée (`403`)
+- `user?.firstName` : `user` peut être `null` le temps que la réponse de `/auth/me` arrive
+- Masquer un bouton n'est **pas** une sécurité : le backend effectue aussi la vérification
 
 ---
 
-# Protéger des routes
+# Protéger une page
 ##
 
-Certaines pages n'ont de sens que pour un utilisateur connecté. Une **route parente** vérifie la session :
+La page d'ajout n'a de sens que pour un utilisateur connecté : sinon, on le renvoie vers `/login`.
 
 ```tsx
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 
-interface RequireAuthProps {
-  user: User | null;
-  loading: boolean;
-}
+const AddRecipePage = ({ isLoggedIn, onAdd }: AddRecipePageProps) => {
+  const navigate = useNavigate();
 
-const RequireAuth = ({ user, loading }: RequireAuthProps) => {
-  const location = useLocation();
+  if (!isLoggedIn) return <Navigate to="/login" replace />;
 
-  if (loading) return <CircularProgress />;
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
-  return <Outlet />;
+  const handleAdd = (newRecipe: NewRecipe) => {
+    const id = onAdd(newRecipe);
+    navigate(`/recipes/${id}`);
+  };
+  return <RecipeForm onAdd={handleAdd} />;
 };
 ```
 
-- `Navigate` : composant qui navigue dès qu'il est affiché (équivalent déclaratif de `navigate`)
-- `state` : la page de connexion peut ramener l'utilisateur là où il voulait aller après le login
-
----
-
-# Protéger des routes (suite)
-
-```tsx
-<Route path="/" element={<Layout />}>
-  <Route index element={<HomePage />} />
-  <Route path="login" element={<LoginPage />} />
-  <Route element={<RequireAuth user={auth.user} loading={auth.loading} />}>
-    <Route path="recipes/new" element={<AddRecipePage />} />
-  </Route>
-</Route>
-```
-
----
-
-# Expiration du token
-##
-
-Le JWT du backend expire. Côté frontend :
-
-- Le frontend peut lire `exp` pour anticiper, mais pas vérifier la signature (il n'a pas la clé secrète)
-  - Accéder à la deuxième partie du token
-  - La décoder du Base64 avec `atob` 
-  - Récupérer `exp` et le comparer à `Date.now() / 1000`
-- Le backend répond `401` à toute requête avec un token expiré : c'est la **seule** vérification fiable
-
-  &rarr; Quand le backend répond `401`, le frontend supprime le token et redirige vers la page de connexion
+- `navigate()` : fonction qui navigue quand elle est appelée &rarr; ne peut pas être appelé pendant le rendu
+- `Navigate` : composant qui navigue dès qu'il est affiché
+- `replace` : `/recipes/new` ne reste pas dans l'historique
 
 ---
 
@@ -340,13 +285,12 @@ Le JWT du backend expire. Côté frontend :
 - **HTTP sans état** — Chaque requête doit prouver l'identité de l'utilisateur
 - **Session serveur / token** — Le serveur stocke les sessions, ou le client conserve un token signé
 - **API** — `POST /auth/register`, `POST /auth/login` &rarr; `{ token }`, `GET /auth/me` &rarr; utilisateur
-- **Stockage du token** — Mémoire, Web Storage (exposé au XSS) ou cookie `HttpOnly`
-- **useAuth** — Hook appelé une fois dans `App` : `user`, `token`, `loading`, `login`, `register`, `logout`, transmis en props
-- **Connexion** — Token obtenu, utilisateur demandé à `/auth/me`, token enregistré
-- **Restauration** — Effet au démarrage, le backend valide le token
+- **Stockage du token** — Mémoire, Web Storage ou cookie `HttpOnly` ; choix du cours : `localStorage`
+- **useAuth** — Hook appelé une fois dans `App` : `token`, `user`, `login`, `logout`
+- **Connecté** — Un token est enregistré ; `isLoggedIn` est une valeur dérivée
+- **Chargement de l'utilisateur** — Effet qui dépend du token ; token invalide &rarr; déconnexion
 - **Affichage selon l'utilisateur** — Confort pour l'utilisateur, pas une sécurité : le backend décide
-- **Routes protégées** — Route parente qui affiche `Outlet` ou `Navigate` vers `/login`
-- **Expiration** — Le backend répond `401` ; `exp` lisible côté client pour anticiper
+- **Page protégée** — `Navigate` vers `/login` si personne n'est connecté
 
 **Prochaine séance** : Séance 24 — Fetch avec JWT
 
@@ -355,9 +299,9 @@ Le JWT du backend expire. Côté frontend :
 # Exercice filé S23
 
 1. Créez `models/user.ts` avec l'interface `User` du backend (`id`, `email`, `firstName`, `lastName`, `role`, `favorites`), puis `services/auth.service.ts` avec `login`, `register` et `getMe`, et des messages d'erreur adaptés à chaque statut (400, 401, 409)
-2. Créez `hooks/useAuth.ts` (`user`, `token`, `loading`, `login`, `register`, `logout`) ; appelez-le une seule fois, dans `App`
-3. Créez les pages `/login` (email et mot de passe) et `/register` ; après succès, retour à la page demandée à l'origine (ou à la liste)
-4. Restaurez la session au démarrage de l'application ; testez en rechargeant la page, puis en modifiant le token dans le `localStorage`
-5. Dans l'en-tête, affichez le prénom de l'utilisateur et un bouton « Déconnexion », ou un lien « Connexion » ; pendant la restauration de la session, ni l'un ni l'autre
-6. Protégez la page d'ajout de recette avec une route `RequireAuth` ; le lien « Ajouter » n'est visible que si un utilisateur est connecté
+2. Créez `hooks/useAuth.ts` (`token`, `user`, `login`, `register`, `logout`) ; appelez-le une seule fois, dans `App`
+3. Créez les pages `/login` (email et mot de passe) et `/register` ; après succès, retour à la liste des recettes
+4. Rechargez la page : vous devez rester connecté ; modifiez ensuite le token dans le `localStorage` et rechargez : vous devez être déconnecté
+5. Dans l'en-tête, affichez le prénom de l'utilisateur et un bouton « Déconnexion », ou un lien « Connexion » ; le lien « Ajouter » n'est visible que si un utilisateur est connecté
+6. La page d'ajout redirige vers `/login` si personne n'est connecté
 7. Le bouton « Supprimer » n'est visible que pour l'auteur de la recette ou un administrateur
