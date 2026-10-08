@@ -360,3 +360,17 @@ Trop découper est aussi un défaut : un composant de 3 lignes utilisé une seul
 4. Créez un composant `PageLayout` avec une prop `title` et des `children` : en-tête avec le titre, `<main>` avec le contenu, pied de page
 5. Dans `App.tsx`, affichez `RecipeList` à l'intérieur de `PageLayout`
 6. Vérifiez que la console du navigateur n'affiche aucun warning
+
+---
+
+# Exercice complémentaire EC04
+##
+
+La page HTML de la séance 08 (sur moodle) est la carte d'un restaurant : beaucoup de blocs s'y répètent, avec de petites différences.
+
+1. Créez un projet `EC04` et copiez le CSS de la page dans `src/index.css`
+2. Sur papier, pour chaque bloc qui se répète, notez :
+   - ce qui change d'une occurrence à l'autre &rarr; des **props**
+   - ce qui est parfois absent &rarr; des **props optionnelles** et un **affichage conditionnel**
+   - les cadres qui entourent un contenu différent à chaque fois &rarr; des **children**
+3. Créez les composants et reproduisez la page à l'identique : le JSX d'un bloc répété n'apparaît **qu'une seule fois**, dans son composant

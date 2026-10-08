@@ -329,9 +329,9 @@ const RecipeDetail = ({ recipe }: RecipeDetailProps) => {
 
 ---
 
-# Exercice complémentaire EC04
+# Exercice complémentaire EC05
 
-1. Créez un projet `EC04` avec Vite + React + TypeScript
+1. Créez un projet `EC05` avec Vite + React + TypeScript
 2. **Compteur borné** : un compteur avec des boutons « −1 », « +1 » et « Remise à zéro » ; la valeur reste entre 0 et 10 et les boutons inutilisables sont désactivés
 3. **Thème** : un bouton bascule entre un thème clair et un thème sombre, appliqué au style d'un conteneur (couleur de fond et de texte) ; le texte du bouton indique le thème vers lequel on bascule
 4. **Vote** : deux boutons « Pour » et « Contre » avec un compteur chacun, le total des votes et le pourcentage de votes « Pour »

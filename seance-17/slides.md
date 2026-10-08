@@ -354,9 +354,9 @@ const RecipeForm = ({ onAdd }: RecipeFormProps) => {
 
 ---
 
-# Exercice complémentaire EC07
+# Exercice complémentaire EC08
 
-1. Créez un projet `EC07` avec Vite + React + TypeScript et installez MUI
+1. Créez un projet `EC08` avec Vite + React + TypeScript et installez MUI
 2. **Titre de l'onglet** : un compteur de clics est reflété dans le titre de l'onglet (« 3 clics »)
 3. **Préférences** : un interrupteur (`Switch`) choisit le mode clair ou sombre de l'application (`createTheme({ palette: { mode } })`) ; le choix est enregistré dans le `localStorage` et restauré au démarrage, une valeur invalide est ignorée
 4. **Liste de tâches** : ajout, suppression et case à cocher « terminée » ; la liste `{ id, text, done }[]` est enregistrée dans le `localStorage` et validée par un type guard à la lecture

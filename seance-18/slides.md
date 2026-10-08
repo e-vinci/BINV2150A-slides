@@ -330,9 +330,9 @@ Chaque frappe modifie `query` : React appelle le nettoyage (qui annule le timeou
 
 ---
 
-# Exercice complémentaire EC08
+# Exercice complémentaire EC09
 
-1. Créez un projet `EC08` avec Vite + React + TypeScript
+1. Créez un projet `EC09` avec Vite + React + TypeScript
 2. **Chronomètre** : affichage minutes:secondes:dixièmes, boutons « Démarrer », « Pause » et « Remise à zéro », et une liste des temps intermédiaires (bouton « Tour »)
 3. **Horloge** : un composant affiche l'heure actuelle, mise à jour chaque seconde, et un bouton permet de le masquer et de le réafficher ; ajoutez un `console.log` dans le callback de l'intervalle et vérifiez qu'il s'arrête quand l'horloge est masquée, puis retirez le nettoyage et observez la console
 4. **Message temporaire** : un bouton « Ajouter au panier » affiche « Article ajouté » pendant 3 secondes ; un nouveau clic avant la fin relance le délai de 3 secondes

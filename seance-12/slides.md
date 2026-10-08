@@ -327,9 +327,9 @@ const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 
 ---
 
-# Exercice complémentaire EC05
+# Exercice complémentaire EC06
 
-1. Créez un projet `EC05` avec Vite + React + TypeScript
+1. Créez un projet `EC06` avec Vite + React + TypeScript
 2. **Inscription** : un formulaire avec email, mot de passe et confirmation du mot de passe
    - Email : doit contenir `@`
    - Mot de passe : au moins 8 caractères, dont un chiffre

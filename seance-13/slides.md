@@ -262,9 +262,9 @@ Tout se passe dans `RecipeForm` : les ingrédients et les étapes sont des **ét
 
 ---
 
-# Exercice complémentaire EC06
+# Exercice complémentaire EC07
 
-1. Créez un projet `EC06` avec Vite + React + TypeScript
+1. Créez un projet `EC07` avec Vite + React + TypeScript
 2. Commencez par afficher un catalogue de 5 produits statiques de votre choix, 
     - Chaque produit affiche un id, un nom, un prix et un bouton « Ajouter au panier »
 4. Le panier est une variable d'état contenant une collection d'objets de type `{ productId, quantity }`

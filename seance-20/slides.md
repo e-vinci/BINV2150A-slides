@@ -230,4 +230,4 @@ npm run dev        # http://localhost:3000
 2. Complétez MiamMiam pour remplir toute la liste de contrôle de la Partie 3
 3. Relisez votre code avec les questions de la slide « Relire son code » ; ajoutez un commentaire là où une décision n'est pas évidente
 4. Lancez votre backend MiamMiam et testez ses routes principales
-5. **Optionnel** : terminez les exercices complémentaires EC04 à EC08, ou lisez la séance complémentaire sur React Context
+5. **Optionnel** : terminez les exercices complémentaires EC04 à EC09, ou lisez la séance complémentaire sur React Context
