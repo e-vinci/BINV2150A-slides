@@ -63,6 +63,7 @@ const Header = () => {
 ---
 
 # CSS dans un projet React
+##
 
 Un fichier CSS est importé dans un fichier TypeScript : Vite l'injecte dans la page.
 
@@ -90,6 +91,7 @@ import "./RecipeCard.css";
 ---
 
 # CSS Modules : des classes locales
+##
 
 Un fichier nommé `*.module.css` est un **CSS Module** : Vite renomme chaque classe pour la rendre unique.
 
@@ -122,6 +124,7 @@ const RecipeCard = ({ title }: RecipeCardProps) => {
 ---
 
 # Style inline
+##
 
 L'attribut `style` reçoit un **objet** TypeScript, pas une chaîne.
 
@@ -187,6 +190,7 @@ Chaque composant MUI est un composant React : il se configure **avec des props**
 ---
 
 # Thème et CssBaseline
+##
 
 Le **thème** définit les couleurs, polices et espacements de toute l'application.
 
@@ -212,11 +216,11 @@ const App = () => {
 
 - `ThemeProvider` rend le thème disponible à tous les composants MUI qu'il contient (`children`)
 - `CssBaseline` remplace le CSS par défaut du navigateur par une base cohérente (marges, police)
-- Tous les `color="primary"` utilisent désormais l'orange
 
 ---
 
 # La prop sx
+##
 
 Tous les composants MUI acceptent une prop `sx` pour les styles ponctuels.
 
@@ -238,6 +242,7 @@ import { Box } from "@mui/material";
 ---
 
 # Typography
+##
 
 `Typography` affiche du texte avec les styles du thème.
 
