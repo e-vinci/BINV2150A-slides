@@ -10,7 +10,6 @@ title: Web 2 - Séance 10 - Modules et collections
 
 # Organisation des fichiers
 
-
 ```
 src/
 ├── App.tsx        # Composant principal
@@ -28,6 +27,7 @@ src/
 ---
 
 # Le modèle Recipe
+##
 
 Le modèle reprend **exactement** le `RecipeDTO` renvoyé par le backend MiamMiam.
 
@@ -90,6 +90,7 @@ export const recipes: Recipe[] = [
 ---
 
 # Passer un objet en prop
+##
 
 Plutôt que de passer chaque champ séparément, on peut passer la recette entière.
 
@@ -115,7 +116,6 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
 
 - Une seule prop, typée par le modèle
 - Si le modèle évolue, l'interface des props suit automatiquement
-- Alternative : le spread `<RecipeCard {...recipe} />` passe chaque propriété comme une prop séparée
 
 ---
 
@@ -129,7 +129,7 @@ const titles = [<li>Pancakes</li>, <li>Carbonara</li>]; // un tableau de JSX (sa
 <ul>{titles}</ul>
 ```
 
-Pour afficher une collection de données, on peut utiliser `map` pour le transformer en un tableau de JSX :
+Pour afficher un tableau de données, on peut utiliser `map` pour le transformer en un tableau de JSX :
 
 ```tsx
 import { recipes } from "../data/recipes";
@@ -216,6 +216,7 @@ const QuickRecipes = () => {
 ---
 
 # Liste vide
+##
 
 Une collection peut être vide : il faut prévoir l'affichage correspondant.
 
