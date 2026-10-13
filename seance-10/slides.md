@@ -9,6 +9,10 @@ title: Web 2 - Séance 10 - Modules et collections
 ---
 
 # Organisation des fichiers
+##
+
+- Définir des **types** dans `models/`
+- Définir des **données** dans `data/`
 
 ```
 src/
@@ -28,8 +32,6 @@ src/
 
 # Le modèle Recipe
 ##
-
-Le modèle reprend **exactement** le `RecipeDTO` renvoyé par le backend MiamMiam.
 
 ```ts
 // models/recipe.ts
@@ -55,6 +57,8 @@ export interface Recipe {
   authorId: number;
 }
 ```
+
+Le modèle reprend **exactement** le `RecipeDTO` renvoyé par le backend MiamMiam.
 
 ---
 
@@ -119,15 +123,36 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => {
 
 ---
 
-# Afficher une collection avec map()
+# Afficher un tableau de JSX
 ##
 
 En JSX, une expression `{...}` peut contenir un **tableau de JSX** : React les affiche les uns après les autres.
 
 ```tsx
-const titles = [<li>Pancakes</li>, <li>Carbonara</li>]; // un tableau de JSX (sans key : warning, voir plus loin)
-<ul>{titles}</ul>
+const titles: JSX.Element[] = [ 
+  <li key="1">Pancakes</li>, 
+  <li key="2">Carbonara</li>
+]; 
+
+return (
+  <ul>{titles}</ul>
+);
 ```
+
+Équivalent à :
+
+```tsx
+return (
+  <ul>
+    <li key="1">Pancakes</li>
+    <li key="2">Carbonara</li>
+  </ul>
+);
+```
+---
+
+# Afficher un tableau de données avec map()
+##
 
 Pour afficher un tableau de données, on peut utiliser `map` pour le transformer en un tableau de JSX :
 
@@ -137,16 +162,15 @@ import { recipes } from "../data/recipes";
 const RecipeTitles = () => {
   return (
     <ul>
-      {recipes.map((recipe) => (
-        <li key={recipe.id}>{recipe.title}</li>
-      ))}
+      {recipes.map((recipe) => <li key={recipe.id}>{recipe.title}</li>)}
     </ul>
   );
 };
 ```
 
-- `map` appelle la fonction pour chaque recette et retourne un **nouveau tableau**
-- Le tableau d'origine n'est pas modifié
+- `recipes` est un tableau d'objets `Recipe`
+- `map` appelle la fonction pour chaque recette et retourne un nouveau tableau
+- Le résultat de `map` est un tableau d'objets `JSX.Element` que React peut afficher
 
 ---
 
@@ -158,18 +182,14 @@ Quand les données changent, React ne recrée pas toute la page : il **compare**
 Dans une liste, React doit savoir quel élément correspond à quel élément :
 
 ```
-Avant :  [Carbonara, Guacamole]
-Après :  [Pancakes, Carbonara, Guacamole]   (ajout au début)
+Avant :  [Pancakes, Carbonara]
+Après :  [Guacamole, Pancakes, Carbonara]
 ```
 
-- Sans key, React compare par **position** : il croit que « Carbonara » est devenu « Pancakes », « Guacamole » est devenu « Carbonara », et qu'un élément a été ajouté à la fin
-- Avec `key={recipe.id}`, il sait que Carbonara et Guacamole n'ont pas changé : il insère un seul élément
+- Sans key, React compare par **position** : il croit que `Pancakes` est devenu `Guacamole`, `Carbonara` est devenu `Pancakes`, et qu'un élément `Carbonara` a été ajouté à la fin
+- Avec un attribut `key` différent pour chaque élément, il sait que Pancakes et Carbonara n'ont pas changé et il insère correctement Guacamole au début
 
-Règles :
-
-- La `key` se place sur l'élément **retourné par `map`** (le plus externe)
-- Elle doit être **unique parmi ses frères** et **stable** (toujours la même pour la même donnée)
-- Elle n'est pas transmise au composant : ce n'est pas une prop
+Oubli de la key &rarr; warning dans la console : *Each child in a list should have a unique "key" prop*
 
 ---
 
@@ -181,13 +201,59 @@ Règles :
 {recipe.steps.map((step, index) => <li key={index}>{step}</li>)}
 ```
 
+- **Nom ou titre** : acceptable seulement si on est sûr qu'il est unique et stable (rare) : ⚠️
+
+```tsx
+{recipes.map((recipe) => <RecipeCard key={recipe.title} recipe={recipe} />)}
+```
+
 - **Identifiant unique** venant des données (l'`id`, pas le titre : deux recettes peuvent avoir le même) : ✅
 
 ```tsx
 {recipes.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)}
 ```
 
-Oubli de la key &rarr; warning dans la console : *Each child in a list should have a unique "key" prop*
+Règles :
+- Elle doit être **unique** : pas deux éléments avec la même key dans le même tableau
+- Elle doit être **stable** : si l'élément reste dans la liste, sa key ne doit pas changer (pas d'index, pas de nom)
+
+---
+
+# Key avec un composant
+##
+
+La Key n'est pas transmise au composant : ce n'est pas une prop.
+
+```tsx
+// RecipeList.tsx
+<Stack spacing={2}>
+  {recipes.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)}
+</Stack>
+```
+
+```tsx
+// RecipeCard.tsx
+interface RecipeCardProps {
+  recipe: Recipe;
+}
+```
+
+---
+
+# Key avec plusieurs composants imbriqués
+##
+
+La Key doit être sur le composant **directement renvoyé par `map`**, pas sur un composant enfant.
+
+```tsx
+<Grid container spacing={2}>
+  {recipes.map((recipe) => (
+    <Grid key={recipe.id} size={{ xs: 12, sm: 6, md: 4 }}>
+      <RecipeCard recipe={recipe} />
+    </Grid>
+  ))}
+</Grid>
+```
 
 ---
 
@@ -245,6 +311,7 @@ Le **retour anticipé** (guard clause) évite une condition autour de tout le JS
 # Récapitulatif Séance 10
 
 - **Organisation** — `models/` pour les types, `data/` pour les données, `components/` pour l'affichage
+- **Tableau de JSX** — React peut afficher un tableau de JSX
 - **map()** — Transformer un tableau de données en tableau de JSX
 - **key** — Identifiant unique et stable obligatoire dans les tableaux de JSX
 - **filter** — Sélectionner des données avant de les afficher
