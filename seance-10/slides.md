@@ -132,7 +132,7 @@ En JSX, une expression `{...}` peut contenir un **tableau de JSX** : React les a
 const titles: JSX.Element[] = [ 
   <li key="1">Pancakes</li>, 
   <li key="2">Carbonara</li>
-]; 
+];
 
 return (
   <ul>{titles}</ul>
@@ -144,8 +144,8 @@ return (
 ```tsx
 return (
   <ul>
-    <li key="1">Pancakes</li>
-    <li key="2">Carbonara</li>
+    <li>Pancakes</li>
+    <li>Carbonara</li>
   </ul>
 );
 ```
@@ -177,7 +177,7 @@ const RecipeTitles = () => {
 # Pourquoi une key ?
 ##
 
-Quand les données changent, React ne recrée pas toute la page : il **compare** le nouveau JSX à l'ancien et ne modifie dans le DOM que ce qui a changé (**réconciliation**).
+Quand les données **changent**, React ne recrée pas toute la page : il **compare** le nouveau JSX à l'ancien et ne modifie dans le DOM que ce qui a changé (**réconciliation**).
 
 Dans une liste, React doit savoir quel élément correspond à quel élément :
 
@@ -186,10 +186,13 @@ Avant :  [Pancakes, Carbonara]
 Après :  [Guacamole, Pancakes, Carbonara]
 ```
 
-- Sans key, React compare par **position** : il croit que `Pancakes` est devenu `Guacamole`, `Carbonara` est devenu `Pancakes`, et qu'un élément `Carbonara` a été ajouté à la fin
-- Avec un attribut `key` différent pour chaque élément, il sait que Pancakes et Carbonara n'ont pas changé et il insère correctement Guacamole au début
+- Sans key, React compare par **position** : il croit que `Pancakes` est devenu `Guacamole`, `Carbonara` est devenu `Pancakes`, et qu'un élément `Carbonara` a été ajouté à la fin. Les composants enfants sont recréés et leur état est perdu.
+- Avec un attribut `key` différent pour chaque élément, il sait que Pancakes et Carbonara n'ont pas changé et il insère correctement Guacamole au début. 
 
-Oubli de la key &rarr; warning dans la console : *Each child in a list should have a unique "key" prop*
+**Oubli de la key** &rarr; warning dans la console : *Each child in a list should have a unique "key" prop*
+
+> La key permet de **préserver l'état** des composants enfants quand la liste change
+
 
 ---
 
@@ -207,7 +210,7 @@ Oubli de la key &rarr; warning dans la console : *Each child in a list should ha
 {recipes.map((recipe) => <RecipeCard key={recipe.title} recipe={recipe} />)}
 ```
 
-- **Identifiant unique** venant des données (l'`id`, pas le titre : deux recettes peuvent avoir le même) : ✅
+- **Identifiant unique** venant des données ✅
 
 ```tsx
 {recipes.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)}
@@ -215,14 +218,16 @@ Oubli de la key &rarr; warning dans la console : *Each child in a list should ha
 
 Règles :
 - Elle doit être **unique** : pas deux éléments avec la même key dans le même tableau
-- Elle doit être **stable** : si l'élément reste dans la liste, sa key ne doit pas changer (pas d'index, pas de nom)
+- Elle doit être **stable** : si l'élément reste dans la liste, sa key ne doit pas changer
+  - L’indice change quand on insère ou supprime un élément, un titre peut être modifié
+  - L’id est stable : il ne change jamais pour un élément donné
 
 ---
 
 # Key avec un composant
 ##
 
-La Key n'est pas transmise au composant : ce n'est pas une prop.
+La key n'est pas transmise au composant : ce n'est pas une prop.
 
 ```tsx
 // RecipeList.tsx
@@ -243,7 +248,7 @@ interface RecipeCardProps {
 # Key avec plusieurs composants imbriqués
 ##
 
-La Key doit être sur le composant **directement renvoyé par `map`**, pas sur un composant enfant.
+La key doit être sur le composant **directement renvoyé par `map`**, pas sur un composant enfant.
 
 ```tsx
 <Grid container spacing={2}>
