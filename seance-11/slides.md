@@ -135,6 +135,7 @@ const RecipeList = () => (
 ---
 
 # Typer l'état
+##
 
 TypeScript **infère** le type à partir de la valeur initiale.
 
@@ -144,7 +145,7 @@ const [title, setTitle] = useState("");          // string
 const [isOpen, setIsOpen] = useState(false);     // boolean
 ```
 
-Il faut préciser le type quand la valeur initiale ne suffit pas :
+Il faut déclarer le type quand la valeur initiale ne suffit pas :
 
 ```tsx
 import type { Recipe } from "../models/recipe";
@@ -159,6 +160,7 @@ const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
 ---
 
 # L'état est une photo du rendu
+##
 
 Dans un rendu, la valeur de l'état est **fixe** : appeler le setter ne la modifie pas, il prépare le rendu suivant.
 
@@ -231,8 +233,6 @@ const ServingsSelector = ({ recipe }: { recipe: Recipe }) => {
   );
 };
 ```
-
-Stocker `ratio` dans un second état obligerait à mettre les deux à jour ensemble, avec le risque qu'ils ne correspondent plus.
 
 ---
 
