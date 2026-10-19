@@ -37,14 +37,11 @@ La console montre que la variable change, mais **l'affichage reste identique**.
 2. La fonction retourne du JSX, qui décrit l'interface à ce moment-là
 3. React met à jour le DOM pour qu'il corresponde à ce JSX
 
-Pour que l'affichage change, React doit **appeler à nouveau** la fonction. Il ne le fait que dans certains cas, notamment quand l'**état** du composant change.
+Objectif &rarr; pouvoir **mettre à jour l'affichage**
 
-Dans l'exemple précédent :
-
-- Modifier `isFavorite` ne prévient pas React : aucun nouveau rendu
-- Et si un rendu avait lieu, `let isFavorite = false` serait réexécuté : la valeur serait perdue
-
-&rarr; Il faut une valeur **conservée par React entre les rendus**, dont la modification **déclenche un nouveau rendu**.
+- Il faut pouvoir **prévenir React** quand une valeur change
+- React doit **mémoriser** cette valeur entre les rendus
+- Pour calculer l'affichage, React doit **réexécuter** la fonction du composant avec la valeur mise à jour
 
 ---
 
@@ -210,7 +207,7 @@ const toggleFavorite = () => setIsFavorite((prev) => !prev);
 
 ---
 
-# Valeurs dérivées : ne pas stocker ce qui peut être calculé
+# Valeurs dérivées : calculer au lieu de stocker
 
 - **Valeurs dérivées** : valeur qui se déduit de l'état ou des props
 - **Calculé pendant le rendu**, pour éviter de stocker des données redondantes
