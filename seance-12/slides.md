@@ -25,8 +25,8 @@ button.addEventListener("click", () => console.log("Cliqué !"));
 ```
 
 - Nom en **camelCase** : `onClick`, `onChange`, `onSubmit`, `onKeyDown`, `onMouseEnter`, …
-- La valeur est une **fonction**, jamais un string
-- Le listener est déclaré directement sur l'élément concerné, dans le JSX
+- La valeur est une **fonction**
+- Le listener est déclaré directement sur l'élément concerné dans le JSX, ou via une fonction handler
 
 ---
 
