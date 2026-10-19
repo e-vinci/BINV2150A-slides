@@ -216,7 +216,10 @@ const toggleFavorite = () => setIsFavorite((prev) => !prev);
 const ServingsSelector = ({ recipe }: { recipe: Recipe }) => {
   const [servings, setServings] = useState(recipe.servings);
 
-  // ✅ Calculé à chaque rendu à partir de l'état
+  // ❌ Ne pas stocker la valeur dérivée
+  const [ratio, setRatio] = useState(servings / recipe.servings);
+
+  // ✅ Calculer à chaque rendu à partir de l'état
   const ratio = servings / recipe.servings;
 
   return (
@@ -268,13 +271,9 @@ const ServingsCounter = () => {
 
   return (
     <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-      <IconButton onClick={decrement} disabled={servings <= 1} aria-label="Moins">
-        <RemoveIcon />
-      </IconButton>
+      <Button onClick={decrement} disabled={servings <= 1}>Moins</Button>
       <Typography>{servings} personnes</Typography>
-      <IconButton onClick={increment} aria-label="Plus">
-        <AddIcon />
-      </IconButton>
+      <Button onClick={increment}>Plus</Button>
     </Stack>
   );
 };
