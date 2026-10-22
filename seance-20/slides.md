@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 20 - Consolidation
+routerMode: hash
 ---
 
 # Web 2 — Séance 20

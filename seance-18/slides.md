@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 18 - Timers et nettoyage
+routerMode: hash
 ---
 
 # Web 2 — Séance 18

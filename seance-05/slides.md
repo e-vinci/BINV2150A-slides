@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 05 - Query Selector
+routerMode: hash
 ---
 
 # Web 2 — Séance 05

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BINV2150-A — JavaScript avancé</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --text: #1f2328;
+      --muted: #5f6670;
+      --border: #e3e4e6;
+      --accent: #1f5fbf;
+      --accent-soft: #e8f0fc;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #16181c;
+        --card: #1e2127;
+        --text: #e6e8eb;
+        --muted: #9aa1ab;
+        --border: #30343b;
+        --accent: #7aa7f0;
+        --accent-soft: #23304a;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+    header { margin-bottom: 32px; }
+    .course { margin: 0; color: var(--muted); font-size: 0.95rem; letter-spacing: 0.02em; }
+    h1 { margin: 4px 0 8px; font-size: 2rem; line-height: 1.2; }
+    .intro { margin: 0; color: var(--muted); }
+    h2 { margin: 32px 0 12px; font-size: 1.1rem; }
+    ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    a {
+      display: flex;
+      gap: 16px;
+      align-items: baseline;
+      padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: inherit;
+      text-decoration: none;
+    }
+    a:hover, a:focus-visible { border-color: var(--accent); background: var(--accent-soft); outline: none; }
+    .label { flex: 0 0 auto; min-width: 6.5em; font-weight: 600; color: var(--accent); }
+    .subject { flex: 1 1 auto; }
+    .help {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    kbd {
+      font-family: inherit;
+      font-size: 0.85em;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      background: var(--card);
+    }
+    @media (max-width: 480px) {
+      a { flex-direction: column; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="course">Haute École Léonard de Vinci — Web 2</p>
+      <h1>BINV2150-A — JavaScript avancé</h1>
+      <p class="intro">Slides des séances, publiées au fil du cours.</p>
+    </header>
+
+    <!-- SEANCES -->
+
+    <p class="help">
+      Dans une présentation : <kbd>←</kbd> <kbd>→</kbd> pour naviguer,
+      <kbd>o</kbd> pour la vue d'ensemble des slides, <kbd>f</kbd> pour le plein écran.
+    </p>
+  </main>
+</body>
+</html>

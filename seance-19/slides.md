@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 19 - Structure de l'application
+routerMode: hash
 ---
 
 # Web 2 — Séance 19

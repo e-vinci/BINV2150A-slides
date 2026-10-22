@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 11 - Gestion de l'état avec useState
+routerMode: hash
 ---
 
 # Web 2 — Séance 11

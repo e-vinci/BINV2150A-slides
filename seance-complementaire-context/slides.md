@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance complémentaire - React Context
+routerMode: hash
 ---
 
 # Web 2 — Séance complémentaire

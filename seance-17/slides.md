@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 17 - useEffect et stockage web
+routerMode: hash
 ---
 
 # Web 2 — Séance 17

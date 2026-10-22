@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 23 - Session
+routerMode: hash
 ---
 
 # Web 2 — Séance 23

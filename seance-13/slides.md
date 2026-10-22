@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 13 - Collection comme état
+routerMode: hash
 ---
 
 # Web 2 — Séance 13

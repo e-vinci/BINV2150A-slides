@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 02 - Requêtes HTTP, Conventions REST et Documentation d'API
+routerMode: hash
 ---
 
 # Web 2 — Séance 02

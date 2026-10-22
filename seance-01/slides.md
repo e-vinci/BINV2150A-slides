@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 01 - Extensions TypeScript
+routerMode: hash
 ---
 
 # Web 2 - BINV2150

@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 08 - Props et children
+routerMode: hash
 ---
 
 # Web 2 — Séance 08

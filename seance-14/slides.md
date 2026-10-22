@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 14 - État partagé
+routerMode: hash
 ---
 
 # Web 2 — Séance 14

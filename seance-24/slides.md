@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 24 - Fetch avec JWT
+routerMode: hash
 ---
 
 # Web 2 — Séance 24

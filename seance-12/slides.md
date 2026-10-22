@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 12 - Événements et formulaires
+routerMode: hash
 ---
 
 # Web 2 — Séance 12

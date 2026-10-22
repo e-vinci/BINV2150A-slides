@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 07 - Projet Vite et composant React
+routerMode: hash
 ---
 
 # Web 2 — Séance 07

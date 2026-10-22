@@ -1,0 +1,17 @@
+# Séances publiées sur le site web (une par ligne, dans l'ordre d'affichage).
+# Ajoutez une ligne après chaque séance donnée, puis poussez sur main :
+# le site est reconstruit et republié automatiquement.
+# Les lignes vides et celles qui commencent par # sont ignorées.
+
+seance-01
+seance-02
+seance-03
+seance-04
+seance-05
+seance-06
+seance-07
+seance-08
+seance-09
+seance-10
+seance-11
+seance-12

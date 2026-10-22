@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 16 - React Router hooks
+routerMode: hash
 ---
 
 # Web 2 — Séance 16

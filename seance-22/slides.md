@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 22 - CORS et proxy
+routerMode: hash
 ---
 
 # Web 2 — Séance 22

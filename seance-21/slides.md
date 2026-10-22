@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 21 - Fetch
+routerMode: hash
 ---
 
 # Web 2 — Séance 21

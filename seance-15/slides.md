@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 15 - Routage
+routerMode: hash
 ---
 
 # Web 2 — Séance 15

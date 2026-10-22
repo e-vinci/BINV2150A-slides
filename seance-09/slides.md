@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 09 - Assets, CSS et MUI
+routerMode: hash
 ---
 
 # Web 2 — Séance 09

@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 04 - Hachage et Sécurité
+routerMode: hash
 ---
 
 # Web 2 — Séance 04

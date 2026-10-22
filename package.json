@@ -1,0 +1,15 @@
+{
+  "name": "binv2150a-slides",
+  "private": true,
+  "type": "module",
+  "description": "Site web des slides du cours BINV2150-A - JavaScript avancé",
+  "scripts": {
+    "build:site": "node scripts/build-site.mjs",
+    "build:site:all": "node scripts/build-site.mjs --all",
+    "preview:site": "node scripts/preview-site.mjs"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.19.1",
+    "@slidev/theme-default": "^0.25.0"
+  }
+}

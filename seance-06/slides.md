@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Web 2 - Séance 06 - Gestion d'événements
+routerMode: hash
 ---
 
 # Web 2 — Séance 06
