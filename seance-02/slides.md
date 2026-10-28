@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 02
 ## Requêtes HTTP, Conventions REST et Documentation d'API
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # Rappel : Requêtes HTTP

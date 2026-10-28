@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 14
 ## État partagé
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # Le problème : deux composants, une donnée

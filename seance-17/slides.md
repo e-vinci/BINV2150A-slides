@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 17
 ## useEffect et stockage web
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # Le rendu doit être pur

@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 04
 ## Hachage et Sécurité
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # ❌ NE PAS : Stocker les mots de passe en clair

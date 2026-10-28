@@ -71,6 +71,8 @@ Non-intégré &rarr; évaluations séparées
 # Web 2 — Séance 01
 ## Extensions TypeScript
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 - Programmation fonctionnelle
 - Optional Chaining `?.`
 - Nullish Coalescing `??`

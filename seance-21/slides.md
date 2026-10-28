@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 21
 ## Fetch
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # Partie 4 : relier le frontend et le backend

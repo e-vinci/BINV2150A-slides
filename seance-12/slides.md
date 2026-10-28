@@ -7,6 +7,8 @@ routerMode: hash
 # Web 2 — Séance 12
 ## Événements et formulaires
 
+<a href="../" class="abs-bl m-6 text-sm opacity-70 hover:opacity-100">← Toutes les séances</a>
+
 ---
 
 # Événements : DOM et React
