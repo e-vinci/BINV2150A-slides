@@ -93,6 +93,7 @@ setRecipes((prev) => [...prev, newRecipe]);
 ---
 
 # Supprimer un élément
+##
 
 `filter` retourne un **nouveau tableau** avec les éléments qui passent le test.
 
@@ -108,6 +109,7 @@ const deleteRecipe = (id: number) => {
 ---
 
 # Modifier un élément
+##
 
 `map` retourne un nouveau tableau ; on remplace l'élément concerné par une **copie modifiée**.
 
