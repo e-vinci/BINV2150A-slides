@@ -328,3 +328,17 @@ Dans l'onglet Réseau :
 4. Tentez de créer une recette avec un `POST` vers `/api/recipes` : quel statut obtenez-vous, et pourquoi ?
 5. **Optionnel** : Utilisez les filtres du backend : `getRecipes` accepte un objet de filtres (`search`, `categoryId`) et les ajoute en paramètres de requête &rarr; La recherche et le filtre par catégorie de `HomePage` passent par le serveur
 6. **Optionnel** : dans une copie du backend, ajoutez le middleware CORS, retirez le proxy et comparez les requêtes dans l'onglet Réseau (preflight `OPTIONS`)
+
+---
+
+# Exercice complémentaire EC16
+##
+
+La bibliothèque d'EC15 reçoit son propre backend Express, écrit à partir du boilerplate de l'examen.
+
+1. Dans un dossier `EC16`, copiez le boilerplate backend de l'examen (sur moodle) sous le nom `library-backend`, et `library-front` d'EC15
+2. Backend : ajoutez la ressource `books` : modèles (DBO, métier, DTO), un `BooksService` qui étend `AbstractService` (fichier `data/books.json`), un contrôleur monté sur `/books`
+3. Routes : `GET /books` ; `GET /books/:id` (404 si inconnu) ; `POST /books` (corps vérifié par un type guard : 400 s'il est invalide, sinon 201 et le livre créé, disponible) ; `DELETE /books/:id` (204, ou 404 si inconnu)
+4. Testez chaque route et chaque cas d'erreur avec un fichier `books.http` (REST Client)
+5. Frontend : remplacez l'URL de l'API par `http://localhost:3000` et observez l'erreur CORS dans la console et l'onglet Réseau
+6. Configurez le proxy de Vite (`/api` vers `http://localhost:3000`) et utilisez `API_URL = "/api"` : toutes les pages d'EC15 fonctionnent avec votre backend

@@ -229,6 +229,26 @@ flowchart LR
 
 ---
 
+# Exercice complémentaire EC18
+##
+
+Les emprunts de livres, réservés aux utilisateurs connectés. Copiez EC17 dans un dossier `EC18`.
+
+1. Backend : `POST /books` est réservé aux utilisateurs connectés et `DELETE /books/:id` aux administrateurs (401 ou 403 sinon), avec les middlewares du boilerplate
+2. Backend : le champ `available` d'un livre est remplacé par `borrowerId` (`null` si le livre est disponible) ; `PUT /books/:id/borrow` emprunte le livre (409 s'il est déjà emprunté) et `PUT /books/:id/return` le rend (403 si l'utilisateur n'est ni l'emprunteur ni un administrateur), réponses 204
+3. Backend : `GET /users/me/loans` renvoie les livres empruntés par l'utilisateur connecté
+4. Frontend : les services des routes protégées reçoivent le token en paramètre ; sur la page d'un livre, un bouton « Emprunter » s'il est disponible, « Rendre » s'il est emprunté par l'utilisateur connecté, aucun sinon
+
+---
+
+# Exercice complémentaire EC18 (suite)
+
+5. L'interface est mise à jour après la réponse du serveur ; les erreurs 403 et 409 affichent un message compréhensible
+6. Une page « Mes emprunts » ; le bouton « Supprimer » n'est visible que pour un administrateur
+7. Testez avec deux utilisateurs (deux navigateurs, ou une fenêtre privée) : un livre emprunté par l'un ne peut pas être emprunté par l'autre
+
+---
+
 # Web 2 : ce que vous savez faire
 
 - **Partie 1 — Backend** : TypeScript avancé, API REST documentée, authentification JWT, mots de passe hachés, code asynchrone

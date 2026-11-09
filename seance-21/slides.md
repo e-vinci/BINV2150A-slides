@@ -346,6 +346,26 @@ Onglet **Réseau** (*Network*) des outils de développement :
 
 ---
 
+# Exercice complémentaire EC15
+##
+
+Les exercices EC15 à EC18 construisent un même projet, une **bibliothèque de prêt de livres**, du frontend au backend, comme à l'examen. Le style n'est pas évalué.
+
+1. Créez un dossier `EC15` avec deux projets : `library-api` et `library-front` (Vite + React + TypeScript + React Router)
+2. `library-api`, sur le modèle de `miammiam-api` : `npm init -y`, `npm install -D json-server@0.17.4`, un script `"start": "json-server --watch db.json --port 3001"` et un `db.json` avec 8 livres `{ id, title, author, year, available }`
+3. `services/books.service.ts` : `getBooks`, `getBook(id)`, `createBook(book)` et `deleteBook(id)`, qui vérifient `response.ok`
+
+---
+
+# Exercice complémentaire EC15 (suite)
+
+4. `/` : la liste des livres (« disponible » ou « emprunté »), avec un message pendant le chargement et en cas d'erreur ; testez en arrêtant l'API
+5. `/books/:id` : le livre chargé avec `getBook` ; un id inconnu affiche « Livre introuvable »
+6. `/books/new` : un formulaire qui envoie le livre avec `POST`, puis navigue vers sa page ; un bouton « Supprimer » sur la page d'un livre envoie `DELETE`, puis revient à la liste
+7. Vérifiez dans `db.json` que les ajouts et suppressions sont bien enregistrés
+
+---
+
 # Pour aller plus loin : requêtes concurrentes
 ##
 

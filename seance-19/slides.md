@@ -255,3 +255,17 @@ src/components/RecipeCard.tsx:8:14: warning react(only-export-components):
 5. Réorganisez les fichiers selon la structure de la séance et corrigez les imports
 6. Lancez `npm run lint` et `npm run build`, et corrigez toutes les erreurs et tous les warnings
 7. **Optionnel** : créez un hook `useDebouncedValue(value, delay)` qui retourne la valeur différée (séance 18), et utilisez-le pour la recherche de la page d'accueil
+
+---
+
+# Exercice complémentaire EC13
+##
+
+Un **quiz** dont toute la logique est rangée dans des hooks personnalisés. Le style n'est pas évalué.
+
+1. Créez un projet `EC13` organisé comme dans la séance (`models`, `data`, `hooks`, `components`) ; `data/questions.ts` contient 5 questions `{ id, text, choices, answerIndex }`
+2. `hooks/useQuiz.ts` expose la question courante, son numéro, le score, le choix sélectionné, et les actions `answer(choiceIndex)`, `next()` et `restart()`
+3. Après une réponse, l'application indique si elle est juste et affiche un bouton « Suivant » ; après la dernière question, elle affiche le score et un bouton « Recommencer »
+4. `hooks/useBestScore.ts` mémorise le meilleur score dans le `localStorage` et l'expose à l'affichage
+5. Les composants (`QuestionCard`, `ScoreBoard`…) ne contiennent **aucun** état de données ni accès au stockage : ils affichent ce que les hooks leur donnent et appellent leurs actions
+6. `npm run lint` et `npm run build` ne signalent ni erreur ni warning

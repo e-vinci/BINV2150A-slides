@@ -308,3 +308,23 @@ const AddRecipePage = ({ isLoggedIn, onAdd }: AddRecipePageProps) => {
 5. Dans l'en-tête, affichez le prénom de l'utilisateur et un bouton « Déconnexion », ou un lien « Connexion » ; le lien « Ajouter » n'est visible que si un utilisateur est connecté
 6. La page d'ajout redirige vers `/login` si personne n'est connecté
 7. Le bouton « Supprimer » n'est visible que pour l'auteur de la recette ou un administrateur
+
+---
+
+# Exercice complémentaire EC17
+##
+
+La bibliothèque reçoit des comptes utilisateurs. Copiez EC16 dans un dossier `EC17`.
+
+1. Backend : les routes `POST /auth/register`, `POST /auth/login` (qui renvoient `{ token }`) et `GET /auth/me`, avec le service d'authentification du boilerplate ; testez-les avec REST Client
+2. Frontend : `services/auth.service.ts` (`login`, `register`, `getMe`, avec un message par statut d'erreur attendu) et un hook `useAuth` appelé une seule fois dans `App`
+3. Le token est conservé dans le `localStorage` ; l'utilisateur est chargé par un effet qui dépend du token, et un token invalide déconnecte l'utilisateur
+4. Pages `/login` et `/register` ; après succès, retour à la liste des livres
+
+---
+
+# Exercice complémentaire EC17 (suite)
+
+5. En-tête : le prénom de l'utilisateur et un bouton « Déconnexion », ou des liens « Connexion » et « Inscription »
+6. Le lien « Ajouter un livre » n'est visible que pour un utilisateur connecté, et `/books/new` redirige vers `/login` sinon
+7. Rechargez la page : vous restez connecté ; modifiez le token dans le `localStorage` et rechargez : vous êtes déconnecté

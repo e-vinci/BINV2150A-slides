@@ -233,4 +233,28 @@ npm run dev        # http://localhost:3000
 2. Complétez MiamMiam pour remplir toute la liste de contrôle de la Partie 3
 3. Relisez votre code avec les questions de la slide « Relire son code » ; ajoutez un commentaire là où une décision n'est pas évidente
 4. Lancez votre backend MiamMiam et testez ses routes principales
-5. **Optionnel** : terminez les exercices complémentaires EC04 à EC09, ou lisez la séance complémentaire sur React Context
+5. **Optionnel** : terminez les exercices complémentaires EC04 à EC13, ou lisez la séance complémentaire sur React Context
+
+---
+
+# Exercice complémentaire EC14 : examen blanc de la Partie 3
+##
+
+En conditions d'examen : **2 h**, seul, sans internet ni IA, avec les slides. Partez d'un projet vide. Les fonctionnalités sont données par ordre de priorité : une fonctionnalité qui marche vaut mieux que trois commencées. Le style n'est pas évalué.
+
+Sujet : la **réservation de salles d'étude**.
+
+1. `data/rooms.ts` contient 5 salles `{ id, name, capacity, hasProjector }` ; la page `/` les affiche, avec un filtre « Avec projecteur » et un filtre de capacité minimale, combinés
+2. Chaque salle mène à `/rooms/:id` : ses informations et la liste de ses réservations ; une salle inconnue affiche un message
+3. Sur la page d'une salle, un formulaire de réservation : nom, date et créneau (« 8h-10h », « 10h-12h », « 13h-15h », « 15h-17h ») ; un créneau déjà réservé pour cette salle et cette date est refusé avec un message
+
+---
+
+# Exercice complémentaire EC14 (suite)
+
+4. Les réservations `{ id, roomId, name, date, slot }` sont conservées dans le `localStorage` et validées à la lecture
+5. Une page `/reservations` liste toutes les réservations, triées par date, chacune avec un bouton « Annuler »
+6. Une barre de navigation (`NavLink`) commune à toutes les pages et une page 404
+7. Une structure MVVM : les composants n'accèdent ni au `localStorage` ni au module de données ; `npm run lint` ne signale aucun warning
+
+Après les 2 h : relisez votre code avec la grille de la slide « Relire son code ».

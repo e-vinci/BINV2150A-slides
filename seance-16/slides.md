@@ -246,3 +246,18 @@ const HomePage = ({ recipes }: HomePageProps) => {
 5. Ajoutez un bouton « Annuler » à la page d'ajout, qui revient à la page précédente
 6. **Optionnel** : stockez la recherche et la catégorie choisie dans les paramètres de requête avec `useSearchParams` au lieu de l'état de `App` ; vérifiez qu'un rechargement conserve les filtres. 
     - ⚠️ `setSearchParams` remplace **tous** les paramètres, il faut donc inclure la catégorie si on change la recherche, et vice versa.
+
+---
+
+# Exercice complémentaire EC10
+##
+
+Un **carnet de contacts** avec une page par contact. Le style n'est pas évalué.
+
+1. Créez un projet `EC10` avec React Router ; l'état `contacts` est dans `App` (`{ id, firstName, lastName, email }[]`, 4 contacts de départ)
+2. `/` : la liste des contacts, chacun avec un `Link` vers `/contacts/:id`
+3. `/contacts/:id` : les informations du contact, à partir de l'id lu avec `useParams` ; un id non numérique ou inconnu affiche « Contact introuvable » et un lien vers la liste
+4. Un bouton « Supprimer » sur la page du contact : après la suppression, retour à la liste, **sans** pouvoir revenir à la page supprimée avec le bouton Précédent du navigateur
+5. `/contacts/new` : un formulaire ; après l'ajout, navigation vers la page du nouveau contact ; un bouton « Annuler » revient à la page précédente
+6. Un champ de recherche sur la liste, stocké dans l'URL (`/?q=dupont`) avec `useSearchParams` : après un rechargement, la recherche est conservée
+7. **Optionnel** : une page `/contacts/:id/edit` qui pré-remplit le formulaire et modifie le contact

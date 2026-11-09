@@ -410,5 +410,20 @@ La liste des recettes devient un état de `App`, modifié par le formulaire et p
 
 ---
 
-# Exercice complémentaire ECXX
+# Exercice complémentaire EC08
+##
 
+Un **suivi de dépenses** : tout l'état est dans `App`, les autres composants reçoivent des données et des fonctions en props. Le style n'est pas évalué : des éléments HTML simples suffisent.
+
+1. Créez un projet `EC08` avec Vite + React + TypeScript ; une dépense est un objet `{ id, label, amount, category }`, avec une catégorie parmi « Alimentation », « Transport » et « Loisirs »
+2. `ExpenseForm` (libellé, montant, catégorie) appelle `onAdd` à la soumission ; un libellé vide ou un montant nul ou négatif est refusé avec un message
+3. `ExpenseList` affiche les dépenses ; chaque ligne (`ExpenseItem`) a un bouton « Supprimer » qui appelle `onDelete(id)`
+4. `CategoryFilter` est **contrôlé par `App`** (props `value` et `onChange`) : un bouton « Toutes » et un bouton par catégorie, le bouton actif est désactivé
+
+---
+
+# Exercice complémentaire EC08 (suite)
+
+5. `Summary` affiche le nombre et le total des dépenses affichées, et le total par catégorie de **toutes** les dépenses
+6. Vérifiez : seul `App` contient l'état des dépenses et du filtre ; la liste filtrée et les totaux sont des **valeurs dérivées**, pas des états
+7. **Optionnel** : un champ de recherche sur le libellé (`SearchBar` contrôlé par `App`), combiné au filtre par catégorie

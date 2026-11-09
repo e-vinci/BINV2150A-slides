@@ -335,3 +335,17 @@ const App = () => {
 5. Dans `RecipeCard`, ajoutez un bouton « Voir la recette » qui mène à `/recipes/:id`
 6. Pour l'instant, `RecipeDetailPage` affiche `RecipeDetail` avec la **première** recette : on lira l'id de l'URL en séance 16
 7. Vérifiez que les recettes ajoutées sont toujours présentes après avoir navigué entre les pages, et qu'elles disparaissent après un rechargement (F5) : pourquoi ?
+
+---
+
+# Exercice complémentaire EC09
+##
+
+Un petit **site de cinéma** à plusieurs pages, avec un état partagé entre les pages. Le style n'est pas évalué.
+
+1. Créez un projet `EC09` avec Vite + React + TypeScript et installez React Router ; un module `data/movies.ts` contient 6 films `{ id, title, year, genre }`
+2. Un `Layout` affiche une barre de navigation (`NavLink` « Accueil », « Films », « Ma liste ») qui indique la page active, puis un `Outlet`
+3. Routes : `/` (un texte d'accueil et le nombre de films dans « Ma liste »), `/movies` (tous les films), `/my-list` (les films ajoutés) et une page 404 pour toute autre URL
+4. Sur `/movies`, chaque film a un bouton « Ajouter à ma liste » ou « Retirer de ma liste » ; « Ma liste » est un état de `App` (les ids des films), passé aux pages en props
+5. Si « Ma liste » est vide, `/my-list` affiche un message et un `Link` vers `/movies`
+6. Vérifiez que « Ma liste » est conservée quand vous naviguez avec les liens, mais perdue quand vous tapez une URL dans la barre d'adresse : pourquoi ?
