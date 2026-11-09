@@ -240,21 +240,20 @@ const SearchBar = ({ value, onChange }: SearchBarProps) => {
 ```mermaid
 flowchart TD
   App["App<br/>état : recipes, query"]
-  App -- "value = query" --> SearchBar
-  SearchBar -. "onChange(texte)" .-> App
-  App -- "recipes filtrées" --> RecipeList
+  RecipeForm["RecipeForm<br/>état : formulaire"]
+  App -- "query" --> SearchBar
+  SearchBar -. "onChange(query)" .-> App
+  App -- "filteredRecipes" --> RecipeList
   RecipeList -- "recipe" --> RecipeCard
   RecipeCard -. "onDelete(id)" .-> App
+  App -- "addRecipe(newRecipe)" --> RecipeForm
+  RecipeForm -. "onAdd(newRecipe)" .-> App
 ```
-
-- Flèches pleines : props (données)
-- Flèches pointillées : appels de fonctions reçues en props (événements)
-- **Une seule source de vérité** : chaque donnée est stockée à un seul endroit
-- Pour savoir pourquoi l'affichage a changé, il suffit de chercher qui appelle le setter
 
 ---
 
 # État ou valeur dérivée ?
+##
 
 `filteredRecipes` n'est **pas** un état : il se calcule à partir de `recipes` et `query`.
 
@@ -408,3 +407,8 @@ La liste des recettes devient un état de `App`, modifié par le formulaire et p
 5. Remontez l'état des favoris : `App` stocke les ids des recettes favorites (`number[]`) ; `FavoriteButton` devient un composant contrôlé (`isFavorite`, `onToggle`)
 6. Affichez le nombre de favoris dans l'en-tête de `PageLayout`
 7. **Optionnel** : ajoutez un filtre « Favoris uniquement » (case à cocher ou `Chip`)
+
+---
+
+# Exercice complémentaire ECXX
+
