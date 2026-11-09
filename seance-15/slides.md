@@ -12,6 +12,7 @@ routerMode: hash
 ---
 
 # Plusieurs pages
+##
 
 MiamMiam affiche tout sur une seule page : liste, formulaire, détail d'une recette. On voudrait :
 
@@ -28,6 +29,7 @@ Chaque page doit avoir sa propre **URL** :
 ---
 
 # Site multi-pages (MPA)
+##
 
 Fonctionnement « classique » d'un site web (*Multi-Page Application*) :
 
@@ -45,6 +47,7 @@ Clic sur un lien <a href="/recipes/3">
 ---
 
 # Application monopage (SPA)
+##
 
 Une application React est une **Single-Page Application** :
 
@@ -88,8 +91,7 @@ autre chose     →  NotFoundPage
 ---
 
 # React Router
-
-Bibliothèque de routage la plus utilisée avec React.
+##
 
 ```bash
 npm install react-router
@@ -208,6 +210,7 @@ import { NavLink } from "react-router";
 ---
 
 # Un layout commun : routes imbriquées
+##
 
 L'en-tête et le pied de page sont les mêmes sur toutes les pages : on les place dans une **route parente**.
 
