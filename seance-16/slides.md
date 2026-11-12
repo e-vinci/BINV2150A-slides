@@ -176,8 +176,6 @@ const isHome = location.pathname === "/";
 {!isHome && <Button onClick={() => navigate(-1)}>Retour</Button>}
 ```
 
-Pour mettre en évidence le lien actif, `NavLink` (séance 15) le fait déjà.
-
 ---
 
 # Paramètres de requête

@@ -138,7 +138,7 @@ export const useAuthContext = () => {
 const UserMenu = () => {
   const { token, user, logout } = useAuthContext();
 
-  if (!token) return <Button component={NavLink} to="/login" color="inherit">Connexion</Button>;
+  if (!token) return <Button component={Link} to="/login" color="inherit">Connexion</Button>;
   return <Button onClick={logout} color="inherit">Déconnexion {user?.firstName}</Button>;
 };
 ```

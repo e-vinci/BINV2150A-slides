@@ -233,11 +233,11 @@ const Layout = ({ user, isLoggedIn, onLogout }: LayoutProps) => (
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>MiamMiam</Typography>
-        <Button component={NavLink} to="/" end color="inherit">Recettes</Button>
-        {isLoggedIn && <Button component={NavLink} to="/recipes/new" color="inherit">Ajouter</Button>}
+        <Button component={Link} to="/" color="inherit">Recettes</Button>
+        {isLoggedIn && <Button component={Link} to="/recipes/new" color="inherit">Ajouter</Button>}
         {isLoggedIn
           ? <Button onClick={onLogout} color="inherit">Déconnexion {user?.firstName}</Button>
-          : <Button component={NavLink} to="/login" color="inherit">Connexion</Button>}
+          : <Button component={Link} to="/login" color="inherit">Connexion</Button>}
       </Toolbar>
     </AppBar>
     <Container><Outlet /></Container>

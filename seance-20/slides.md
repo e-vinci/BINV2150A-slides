@@ -186,7 +186,7 @@ Correction : déplacer l'état dans le composant enfant RecipeDetail, qui reçoi
 - **Liste** : cartes MUI, recherche différée, filtre par catégorie, message si aucun résultat
 - **Détail** (`/recipes/:id`) : ingrédients, étapes, portions ajustables, titre de l'onglet, message « Recette introuvable »
 - **Ajout** (`/recipes/new`) : formulaire contrôlé et validé, ingrédients et étapes dynamiques, brouillon conservé
-- **Navigation** : layout commun avec `NavLink`, page 404, navigation après ajout et suppression
+- **Navigation** : layout commun avec des liens de navigation, page 404, navigation après ajout et suppression
 - **Favoris** : persistants dans le `localStorage`
 - **Architecture** : `useRecipes`, `useFavorites`, `useRecipeDraft` ; aucun composant n'accède directement au stockage ou au module de données
 - **Qualité** : `npm run lint` et `npm run build` sans erreur ni warning
@@ -254,7 +254,7 @@ Sujet : la **réservation de salles d'étude**.
 
 4. Les réservations `{ id, roomId, name, date, slot }` sont conservées dans le `localStorage` et validées à la lecture
 5. Une page `/reservations` liste toutes les réservations, triées par date, chacune avec un bouton « Annuler »
-6. Une barre de navigation (`NavLink`) commune à toutes les pages et une page 404
+6. Une barre de navigation (`Link`) commune à toutes les pages et une page 404
 7. Une structure MVVM : les composants n'accèdent ni au `localStorage` ni au module de données ; `npm run lint` ne signale aucun warning
 
 Après les 2 h : relisez votre code avec la grille de la slide « Relire son code ».

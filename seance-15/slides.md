@@ -180,35 +180,6 @@ const RecipeCard = ({ recipe }: RecipeCardProps) => (
 
 ---
 
-# NavLink : lien de navigation
-##
-
-`NavLink` est un `Link` qui sait s'il correspond à la page actuelle.
-
-```tsx
-import { NavLink } from "react-router";
-
-<nav>
-  <NavLink to="/" end>Recettes</NavLink>
-  <NavLink to="/recipes/new">Ajouter</NavLink>
-</nav>
-```
-
-- Ajoute automatiquement la classe CSS `active` au lien de la page courante
-- `end` : le lien `/` n'est actif que sur `/` exactement (sinon `/` correspond au début de toutes les URLs)
-
-```tsx
-// Avec MUI : style du lien actif via sx
-<Button
-  component={NavLink} to="/" end color="inherit"
-  sx={{ "&.active": { textDecoration: "underline" } }}
->
-  Recettes
-</Button>
-```
-
----
-
 # Un layout commun : routes imbriquées
 ##
 
@@ -236,7 +207,7 @@ L'en-tête et le pied de page sont les mêmes sur toutes les pages : on les plac
 `Outlet` indique **où** la route enfant s'affiche dans la route parente.
 
 ```tsx
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 
 const Layout = () => {
   return (
@@ -244,8 +215,8 @@ const Layout = () => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>MiamMiam</Typography>
-          <Button component={NavLink} to="/" end color="inherit">Recettes</Button>
-          <Button component={NavLink} to="/recipes/new" color="inherit">Ajouter</Button>
+          <Button component={Link} to="/" color="inherit">Recettes</Button>
+          <Button component={Link} to="/recipes/new" color="inherit">Ajouter</Button>
         </Toolbar>
       </AppBar>
       <Container sx={{ py: 4 }}>
@@ -320,7 +291,7 @@ const App = () => {
 - **React Router** — `npm install react-router`, imports depuis `"react-router"`
 - **BrowserRouter / Routes / Route** — Associer des chemins à des composants
 - **Segment dynamique** — `:id` correspond à n'importe quelle valeur
-- **Link / NavLink** — Navigation sans rechargement ; classe `active` et `end` pour NavLink
+- **Link** — Navigation sans rechargement
 - **Routes imbriquées + Outlet** — Layout commun, la page s'affiche dans l'`Outlet`
 - **index et `*`** — Route par défaut du parent, page 404
 - **État partagé** — Dans `App`, qui ne disparaît jamais, et passé aux pages en props via `element`
@@ -333,7 +304,7 @@ const App = () => {
 
 1. Installez React Router
 2. Créez un dossier `src/pages` avec `HomePage` (recherche, filtres et liste), `AddRecipePage` (formulaire), `RecipeDetailPage` et `NotFoundPage`
-3. Transformez `PageLayout` en composant `Layout` pour une route parente : `AppBar` avec des `NavLink` « Recettes » et « Ajouter une recette », le nombre de favoris (reçu en prop depuis `App`), et un `Outlet` à la place de `children`
+3. Transformez `PageLayout` en composant `Layout` pour une route parente : `AppBar` avec des liens (`Link`) « Recettes » et « Ajouter une recette », le nombre de favoris (reçu en prop depuis `App`), et un `Outlet` à la place de `children`
 4. Déclarez les routes dans `App` : `/`, `/recipes/new`, `/recipes/:id` et la page 404 ; l'état reste dans `App` et est passé aux pages en props
 5. Dans `RecipeCard`, ajoutez un bouton « Voir la recette » qui mène à `/recipes/:id`
 6. Pour l'instant, `RecipeDetailPage` affiche `RecipeDetail` avec la **première** recette : on lira l'id de l'URL en séance 16
@@ -347,7 +318,7 @@ const App = () => {
 Un petit **site de cinéma** à plusieurs pages, avec un état partagé entre les pages. Le style n'est pas évalué.
 
 1. Créez un projet `EC09` avec Vite + React + TypeScript et installez React Router ; un module `data/movies.ts` contient 6 films `{ id, title, year, genre }`
-2. Un `Layout` affiche une barre de navigation (`NavLink` « Accueil », « Films », « Ma liste ») qui indique la page active, puis un `Outlet`
+2. Un `Layout` affiche une barre de navigation (`Link` « Accueil », « Films », « Ma liste »), puis un `Outlet`
 3. Routes : `/` (un texte d'accueil et le nombre de films dans « Ma liste »), `/movies` (tous les films), `/my-list` (les films ajoutés) et une page 404 pour toute autre URL
 4. Sur `/movies`, chaque film a un bouton « Ajouter à ma liste » ou « Retirer de ma liste » ; « Ma liste » est un état de `App` (les ids des films), passé aux pages en props
 5. Si « Ma liste » est vide, `/my-list` affiche un message et un `Link` vers `/movies`
