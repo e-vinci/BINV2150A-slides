@@ -18,7 +18,6 @@ routerMode: hash
 
 - `useParams` : lire les segments dynamiques de l'URL (`:id`)
 - `useNavigate` : naviguer depuis le code (après une action)
-- `useLocation` : lire l'URL actuelle
 - `useSearchParams` : lire et modifier les paramètres de requête (`?search=...`)
 
 Ce sont des hooks : mêmes règles que `useState` (séance 11), et ils ne fonctionnent que dans un composant affiché **à l'intérieur** de `BrowserRouter`.
@@ -45,11 +44,12 @@ const RecipeDetailPage = ({ recipes }: RecipeDetailPageProps) => {
 - Le nom de la propriété est celui déclaré dans `path` (`:id` &rarr; `id`)
 - Le composant est **réaffiché** quand l'URL change (de `/recipes/3` à `/recipes/5`), 
   - ⚠️ Réaffiché, pas recréé : ses états (par exemple le nombre de portions choisi) sont **conservés**
-  - Pour repartir de zéro à chaque recette, il faut donner une `key` au composant
+  - &rarr; Pour repartir de zéro à chaque recette, il faut donner une `key` au composant
 
 ---
 
 # Les paramètres sont des chaînes
+##
 
 Une URL est du texte : `useParams` retourne toujours des `string`, ou `undefined`.
 
@@ -68,7 +68,6 @@ return <RecipeDetail recipe={recipe} />;
 
 - Même problème que `req.params.id` dans les contrôleurs du backend : il faut convertir et vérifier
 - L'utilisateur peut taper n'importe quelle URL : `/recipes/abc`, `/recipes/999`
-- Guard clause : traiter le cas « introuvable » d'abord, le reste du composant peut utiliser `recipe` sans `?.`
 
 ---
 
@@ -151,34 +150,8 @@ const RecipeDetailPage = ({ recipes, onDelete }: RecipeDetailPageProps) => {
 
 ---
 
-# useLocation : l'URL actuelle
-
-```tsx
-import { useLocation } from "react-router";
-
-const Layout = () => {
-  const location = useLocation();
-  // URL : http://localhost:5173/recipes/3?from=home#ingredients
-
-  console.log(location.pathname); // "/recipes/3"
-  console.log(location.search);   // "?from=home"
-  console.log(location.hash);     // "#ingredients"
-  // ...
-};
-```
-
-Utile pour adapter l'affichage à la page courante :
-
-```tsx
-const navigate = useNavigate();
-const isHome = location.pathname === "/";
-
-{!isHome && <Button onClick={() => navigate(-1)}>Retour</Button>}
-```
-
----
-
 # Paramètres de requête
+##
 
 Les **query parameters** décrivent une variante de la page : filtres, tri, pagination.
 
