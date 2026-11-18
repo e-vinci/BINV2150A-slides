@@ -51,6 +51,7 @@ Aucun clic ne déclenche ces actions : elles doivent **synchroniser** un systèm
 ---
 
 # useEffect
+##
 
 Hook React pour exécuter un effet de bord de manière contrôlée.
 
@@ -117,6 +118,7 @@ Règle : **toute** valeur du composant utilisée dans l'effet (props, état, var
 ---
 
 # Quand ne pas utiliser useEffect
+##
 
 Un effet sert à synchroniser React avec **l'extérieur**. Pour calculer une valeur à partir de l'état, un effet est inutile et nuisible.
 
@@ -152,22 +154,23 @@ En Partie 4, les données importantes seront stockées par le **backend**. Mais 
 ---
 
 # Web Storage
+##
 
 Le navigateur fournit deux espaces de stockage **clé → valeur** :
 
 | | `localStorage` | `sessionStorage` | `état React` |
 |---|---|---|---|
 | Durée de vie | Permanente, jusqu'à suppression | Jusqu'à la fermeture de l'onglet | Jusqu'au rechargement de la page |
-| Rechargement de la page | Conservé | Conservé | Perdu |
+| Supporte le rechargement | Conservé | Conservé | Perdu |
 | Partage entre onglets | Tous les onglets de la même origine | Propre à chaque onglet | Non |
 | Capacité | Environ 5 Mo | Environ 5 Mo | RAM de la machine |
 
-- **Origine** = protocole + domaine + port : `http://localhost:5173` n'a pas accès aux données de `http://localhost:3000`
-- Visible et modifiable dans les outils de développement : onglet *Application* (Chrome) ou *Stockage* (Firefox)
+Visible et modifiable dans les outils de développement : onglet *Application* (Chrome) ou *Stockage* (Firefox)
 
 ---
 
 # L'API
+##
 
 Les deux objets ont exactement la même API.
 
@@ -191,6 +194,7 @@ localStorage.clear();
 ---
 
 # Uniquement des chaînes
+##
 
 Le Web Storage ne stocke que des **chaînes de caractères**.
 
@@ -216,6 +220,7 @@ const parsed: unknown = stored ? JSON.parse(stored) : [];              // [1, 4]
 ---
 
 # Ne pas faire confiance au stockage
+##
 
 Une valeur lue dans le stockage peut être **n'importe quoi** :
 
@@ -238,10 +243,6 @@ export const loadFavorites = (): number[] => {
     return []; // JSON invalide
   }
 };
-
-export const saveFavorites = (favorites: number[]) => {
-  localStorage.setItem("miammiam.favorites", JSON.stringify(favorites));
-};
 ```
 
 ---
@@ -263,6 +264,7 @@ const [favoriteIds, setFavoriteIds] = useState<number[]>(() => loadFavorites());
 ---
 
 # Écrire à chaque changement
+##
 
 Garder le stockage synchronisé avec l'état est une synchronisation avec un système **extérieur** à React : un effet, comme pour `document.title`.
 
@@ -287,6 +289,7 @@ const toggleFavorite = (recipeId: number) => {
 ---
 
 # Exemple : brouillon de formulaire
+##
 
 Un formulaire qui survit à un rechargement accidentel :
 
