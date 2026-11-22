@@ -92,11 +92,12 @@ const intervalId = setInterval(() => {
 ```
 
 - Sans `clearInterval`, l'intervalle tourne tant que la page est ouverte
-- Le callback lit et modifie `count`, déclaré en dehors de lui : une fonction a accès aux variables de l'endroit où elle a été **créée**, même quand elle est appelée plus tard. On appelle cela une **closure**
+- Le callback lit et modifie `count`, déclaré en dehors de lui : une fonction a accès aux variables de l'endroit où elle a été **créée**, même quand elle est appelée plus tard. On appelle cela une **closure**.
 
 ---
 
 # Un timer appartient au navigateur
+##
 
 Un timer est enregistré auprès du **navigateur**, pas auprès du code qui l'a créé :
 
@@ -116,6 +117,7 @@ Exemple : une horloge qui affiche l'heure, mise à jour chaque seconde.
 
 ```tsx
 // ❌ Démarrer un timer dans le corps du composant
+
 const Clock = () => {
   const [now, setNow] = useState(new Date());
 
@@ -179,15 +181,16 @@ const App = () => {
 ---
 
 # Le nettoyage (cleanup)
+##
 
 Un effet peut retourner une fonction de **nettoyage**, qui défait ce que l'effet a fait.
 
 ```tsx
 useEffect(() => {
-  const intervalId = setInterval(() => setNow(new Date()), 1000); // mise en place
+  const intervalId = setInterval(() => setNow(new Date()), 1000);   // mise en place
 
   return () => {
-    clearInterval(intervalId);                                     // nettoyage
+    clearInterval(intervalId);                                      // nettoyage
   };
 }, []);
 ```
@@ -250,10 +253,6 @@ const Stopwatch = () => {
   );
 };
 ```
-
-- **Démarrer** : `isRunning` passe à `true`, l'effet crée un intervalle
-- **Pause** : `isRunning` passe à `false`, le nettoyage arrête l'intervalle, puis le nouvel effet ne fait rien
-- Sans `clearInterval`, Pause n'arrêterait rien et chaque Démarrer ajouterait un intervalle : le chronomètre accélérerait
 
 ---
 
