@@ -12,6 +12,7 @@ routerMode: hash
 ---
 
 # Le problème : des composants qui font tout
+##
 
 Après 12 séances, `App` et les pages mélangent plusieurs responsabilités :
 
@@ -39,6 +40,7 @@ Changer la source des données (Partie 4) obligerait à modifier les composants 
 ---
 
 # Séparation des responsabilités
+##
 
 Principe déjà appliqué dans le backend :
 
@@ -58,8 +60,9 @@ Le même principe s'applique au frontend :
 ---
 
 # Le modèle MVVM
+##
 
-**Model – View – ViewModel**, adapté à React :
+**Model – View – ViewModel** :
 
 ```mermaid
 flowchart LR
@@ -70,13 +73,16 @@ flowchart LR
   VM -->|"lit et écrit"| M
 ```
 
-- **Model** : forme des données (`models/`) et fonctions d'accès (`data/`, `utils/storage.ts`, `services/` en Partie 4)
-- **ViewModel** : hooks qui exposent à la vue un **état prêt à afficher** et des **actions** (`addRecipe`, `toggleFavorite`)
-- **View** : composants qui appellent un hook, affichent le résultat et appellent les actions ; aucun `useState` de données, aucun accès direct au stockage
+- **Model** : 
+  - forme des données (`models/`)
+  - fonctions d'accès (`data/`, `utils/storage.ts`, `services/` en Partie 4)
+- **ViewModel** : hooks qui exposent à la vue un **état prêt à afficher** et des **actions** sur cet état (`hooks/`)
+- **View** : composants qui appellent un hook, affichent le résultat et appellent les actions
 
 ---
 
 # Hook personnalisé
+##
 
 Un **hook personnalisé** est une fonction :
 
@@ -128,6 +134,7 @@ const App = () => {
 ---
 
 # Un hook partage la logique, pas l'état
+##
 
 ⚠️ Chaque **appel** d'un hook crée son **propre** état, comme chaque instance d'un composant (séance 11).
 
@@ -148,11 +155,10 @@ Une recette ajoutée dans l'état n°1 n'apparaît pas dans l'état n°2. Pour p
 - Appeler le hook **une seule fois**, dans le parent commun (`App`), et passer les valeurs en props (séance 14)
 - Pour des composants très éloignés dans l'arbre, React propose aussi le **Context** (séance complémentaire, hors programme)
 
-`useFavorites` stocke dans le `localStorage`, mais deux appels ne sont pas synchronisés pour autant : l'état en mémoire reste propre à chaque appel.
-
 ---
 
 # Les règles des hooks, expliquées
+##
 
 React stocke les états d'un composant dans une **liste**, dans l'ordre des appels de hooks :
 
@@ -193,6 +199,7 @@ src/
 ---
 
 # Linter
+##
 
 Un **linter** analyse le code sans l'exécuter et signale les erreurs probables et les mauvaises pratiques.
 
